@@ -1,0 +1,34 @@
+.hidden {
+  position: absolute;
+  right: 0;
+  width: 200px;
+  height: 100px;
+  background-color: beige;
+  color: #444;
+}
+
+.notify {
+  position: absolute;
+  top: 50px;
+  z-index: 999;
+  right: -620px;
+  min-width: 200px;
+  transition: 0.5s ease;
+  &.enter {
+    transform: translate(-650px,0);
+  }
+  &.quit {
+    transform: translate(400px,0);
+  }
+  .n {
+    line-height: 40px;
+    font-size: 18px;
+    font-weight: 600px;
+    padding: 0 20px;
+    min-height: 40px;
+    border-radius: 10px;
+  }
+  border-radius: 10px;
+  background-color: beige;
+  color: #333;  
+}

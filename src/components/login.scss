@@ -1,0 +1,70 @@
+@import "../css/_common.scss";
+
+.login-container {
+  min-height: 100vh;
+  background-color: $bg;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 200px;
+  .title {
+    font-size: 40px;
+    font-weight: 700;
+    margin: 20px;
+  }
+  .row {
+    position: relative;
+    font-size: 26px;
+    width: 500px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin: 20px;
+    :focus-visible {
+      outline: none;
+    }
+    input {
+      padding: 0px 10px;
+      width: 200px;
+      text-align: center;
+      font-size: 20px;
+      background-color: transparent;
+      border: none;
+      border-bottom: 1px solid $text;
+      caret-color: $text;
+      line-height: 30px;
+      color: $text;
+      letter-spacing: 0.2rem;
+      // height: 30px;
+      :focus-visible {
+        border: none;
+        outline: none;
+      }
+    }
+    .count {
+      position: absolute;
+      right: 0;
+      color: #777;
+      font-size: 12px;
+      line-height: 40px;
+    }
+  }
+  .desc {
+    font-size: 14px;
+    color: #888;
+    text-align: left;
+    // width: 100%;
+  }
+  
+  button {
+    width: 70px;
+    height: 40px;
+    cursor: pointer;
+    margin: 20px;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 40px;
+  }
+}

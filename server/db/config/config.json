@@ -1,0 +1,36 @@
+{
+  "development": {
+    "username": "root",
+    "password": "dipper123456",
+    "database": "canvas-dev",
+    "host": "localhost",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "socketPath": "/tmp/mysql.sock"
+    }
+  },
+  "local": {
+    "username": "root",
+    "password": "dipper123456",
+    "database": "canvas-local",
+    "host": "10.0.0.154",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "socketPath": "/tmp/mysql.sock"
+    }
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

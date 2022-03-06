@@ -1,0 +1,32 @@
+@import "../css/_common.scss";
+
+.chat-room-container {
+  min-height: 100vh;
+  background-color: $bg;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 200px;
+  .title {
+    font-size: 40px;
+    font-weight: 700;
+    margin: 20px;
+  }
+  .type-box {
+    input {
+      width: 200px;
+      height: 30px;
+      line-height: 30px;
+      color: $text;
+      font-size: 14px;
+      font-weight: 400;
+      padding: 2px 5px;
+      background-color: $dark-bg;
+      ::placeholder {
+        font-size: 12px;
+      }
+    }
+  }
+}
