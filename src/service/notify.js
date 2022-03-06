@@ -2,8 +2,12 @@ import NotifyFC from '../components/common/Notify'
 import ReactDOM from 'react-dom'
 
 class NotifyGenerator {
-  message = []
+  static message = []
   static instance = null
+
+  constructor () {
+    this.message = new Array(100).fill(null)
+  }
 
   static _getInstance () {
     return this.instance ? this.instance : new NotifyGenerator()
@@ -17,15 +21,39 @@ class NotifyGenerator {
     this.addMessage({ msg, delay, type })
   }
 
+  /**
+   * add msg to message list and return its index
+   * @param {*} msg 
+   * @returns {number} index
+   */
+  addToArray (msg) {
+    for (let i = 0; i < this.message.length; i++) {
+      if (this.message[i] == null) {
+        this.message[i] = msg
+        return i
+      }
+    }
+  }
+
+  popArray (msg) {
+    for (let i = 0; i < this.message.length; i++) {
+      if (this.message[i] == msg) {
+        this.message[i] = null
+      }
+    }
+  }
+
   addMessage (msg) {
-    this.message.push(msg)
+    const index = this.addToArray(msg)
+    console.log('@@@@ ', index)
     const div = document.createElement('div')
     div.className = 'notify'
-    div.style = `top: ${30 + this.size() * 50}px;`
+    div.style = `top: ${30 + index * 50}px;`
     setTimeout(() => {
       div.className = 'notify enter'
-    }, 100)
+    }, 50)
     document.body.appendChild(div)
+    console.log(this.message, this.message.length)
     ReactDOM.render(
       <NotifyFC message={msg.msg} delay={msg.delay} type={msg.type} height={this.message.length} />,
       div)
@@ -36,7 +64,7 @@ class NotifyGenerator {
     let timer = setTimeout(() => {
       this.destroy(div)
       clearTimeout(timer)
-      this.message.shift()
+      this.popArray(msg)
     }, msg.delay)
   }
 

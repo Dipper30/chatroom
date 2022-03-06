@@ -9,7 +9,6 @@ import generator from './notify'
  * @returns 
  */
 export const handleResult = (res, notifySuccess = true, notifyMessage = 'Success!') => {
-  console.log(generator)
   if (isError(res)) {
     // if (res?.code == 10003) {
     //   router.push('/no-auth')
@@ -21,11 +20,11 @@ export const handleResult = (res, notifySuccess = true, notifyMessage = 'Success
     //   message: res?.msg || 'error',
     //   type: 'error',
     // })
-    generator.generateNotify(res.msg || 'Unknown Error', 3500, 'error')
+    generator.generateNotify(res.msg || 'Unknown Error', 3200, 'error')
     return false
   } else {
     if (notifySuccess) {
-      generator.generateNotify(notifyMessage, 3500, 'success')
+      generator.generateNotify(notifyMessage, 3000, 'success')
     }
     return true
   }
