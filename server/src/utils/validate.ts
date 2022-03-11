@@ -19,31 +19,43 @@ export const attrsAreIDs = (o: any, attrs: string[]): Boolean => {
   return true
 }
 
-// unix timestamp must be 13 digits
+/**
+ * timestamp must be 13 digits number
+ */
 export const isTimeStamp = (ts: number): Boolean => {
   return Boolean(ts) && typeof ts == 'number' && ts.toString().length === 13
 }
 
-// unix timestamp must be 10 digits
+/**
+ * unix timestamp must be 10 digits number
+ */
 export const isUnixTimeStamp = (ts: number): Boolean => {
   return Boolean(ts) && typeof ts == 'number' && ts.toString().length === 10
 }
 
-// check zip code, 5-digit long
+/**
+ * check zip code, 5-digit long
+ * @param code 
+ * @returns 
+ */
 export const isZipCode = (code: any): Boolean => {
   return Boolean(code) && typeof code == 'number' && code.toString().length == 5
 }
 
-// check if the number is between min and max
-// or check if the length of string is between min and max
-export const isBetween = (p: any, min: number, max: number): Boolean => {
-  return Boolean(p) 
+/**
+ * check if the number is between min and max
+ * or check if the length of string is between min and max
+ */
+export const isBetween = (p: number|string, min: number, max: number): Boolean => {
+  return Boolean(p)
   && (typeof p == 'number' && p >= min && p <= max)
-  || (typeof p == 'string' && p.length >= min && p.length <=max)
+  || (typeof p == 'string' && p.length >= min && p.length <= max)
 }
 
-// check if the length of name is between [3, 15]
-// you can use function isBetween of course, but this is more convenient in particular cases
+/**
+ * check if the length of name is between [3, 15]
+ * you can use function isBetween of course, but this is more convenient in particular cases
+ */
 export const isShortName = (p: any): Boolean => {
   return isBetween(p, 3, 15)
 }
@@ -56,6 +68,11 @@ export const stringIsBoolean = (s: string): Boolean => {
   return s == 'false' || s == 'true'
 }
 
+/**
+ * return a ParameterException and define its message
+ * @param msg 
+ * @returns {ParameterException}
+ */
 export const createError = (msg: string = 'Parameter Error'): ParameterException => {
   return new ParameterException(errCode.PARAMETER_ERROR, msg)
 }

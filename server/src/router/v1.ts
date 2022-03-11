@@ -3,6 +3,7 @@ import { Router } from 'express'
 import { 
 //   ActivityController,
   AuthController,
+  ChatRoomController,
 //   CommentController,
 //   GreetingController,
 //   // ConfigController,
@@ -10,6 +11,7 @@ import {
 
 import {
   AuthValidator,
+  ChatRoomValidator,
 } from '../validator'
 // import MessageController from '../controller/MessageController'
 
@@ -19,6 +21,12 @@ const router: Router = Router()
 router.post('/login', AuthValidator.checkLogin, AuthController.login)
 // router.post('/login', AuthController.login)
 // router.post('/token', AuthController.getUserInfo)
+
+// chatroom
+router.post('/createChatroom', ChatRoomValidator.checkCreate, ChatRoomController.createChatroom)
+
+// message
+router.get('/getMessage', ChatRoomController.getMessage)
 
 // router.post('/postGreeting', GreetingController.postGreeting)
 // router.post('/likeGreeting', GreetingController.likeGreeting)

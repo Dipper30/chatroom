@@ -6,11 +6,6 @@ const fs = require('fs')
 import { createSocket, useSocketRouter } from './socket'
 const fileUpload = require('express-fileupload') // parse uploaded file
 import { Exception } from './types/common'
-import { generator } from './utils'
-const { 
-  v1: uuidv1,
-  v4: uuidv4,
-} = require('uuid')
 require('dotenv').config()
 
 app.use(express.json({ limit: '20mb' }))
@@ -19,8 +14,6 @@ app.use(fileUpload({ limits: { fileSize: 1024 * 1024 * 5 } })) // <= 5MB
 app.use(express.static('dist'))
 
 app.get('*', async (req: any, res: any, next: any) => {
-  // if (req.url)
-  console.log(req.url)
   if (req.url.substring(0, 10) == 'socket.io') {
     next()
   } else if(req.url.substr(0, 4) != '/api') {
@@ -92,7 +85,6 @@ app.use((err: Exception, req: any, res: any, next: any) => {
 // const http = require('http')
 // const server = http.createServer(app)
 const server = httpServer.createServer(app)
-
 createSocket(server)
 
 server.listen(3000, '0.0.0.0', () => {

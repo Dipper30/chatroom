@@ -5,13 +5,12 @@ import api from '../request'
 import { setUser } from '../store/actions/user'
 import { connect } from 'react-redux'
 import { handleResult } from '../service/utils' 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 
 const Login: React.FC = (props: any) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [lock, setLock] = useState(false)
-
   const navigate = useNavigate()
 
   let timer: any = null
@@ -31,6 +30,8 @@ const Login: React.FC = (props: any) => {
     const res: any = await api.login(p)
     if (handleResult(res)) {
       props.setUser(res.data.user)
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('uid', res.data.user.id)
       // go to chatroom
       navigate('/chat')
     }

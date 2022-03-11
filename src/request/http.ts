@@ -31,8 +31,8 @@ http.defaults.headers.post['Content-Type'] = 'application/json'
 
 http.interceptors.request.use(
   (config: any) => {
-    // const token = store.getters.getToken
-    // config.headers.token = token
+    const token = localStorage.getItem('token')
+    config.headers.token = token
     return config
   },
 )
@@ -67,7 +67,7 @@ http.interceptors.response.use(
 /**
  * get request
  */
-export const get = (url: string, params: any): Promise<AxiosResponse<any, any>> => {
+export const get = (url: string, params?: any): Promise<AxiosResponse<any, any>> => {
   if (!params) return http.get(url)
   let count = 1
   for (let attr in params) {

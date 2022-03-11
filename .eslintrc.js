@@ -78,6 +78,7 @@ module.exports = {
         'prefer-const': 'off',
         'arrow-parens': 'off',
         'jsx-a11y/no-autofocus': 'off',
+        'no-invalid-this': 'off',
     },
     "settings": {
         "import/ignore": [

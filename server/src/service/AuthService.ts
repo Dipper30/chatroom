@@ -77,6 +77,17 @@ class Auth extends BaseService {
   //   }
   // }
 
+  async ifHasAccount (uid: number): Promise<any> {
+    try {
+      const user = await UserModel.findByPk(uid)
+      if (!user) return false
+      else return user
+    } catch (error) {
+      return error
+    }
+    
+  }
+
   async loginAccount (params: Account) {
     let { username, password } = params
     const p: string = encryptMD5(password)
@@ -96,7 +107,7 @@ class Auth extends BaseService {
         const created = await UserModel.create({
           username,
           password: p,
-          chatroomId: null,
+          chatroomId: 'b0b45ff0-9f94-11ec-9f8c-ffce63e7528f',
         })
         return created
       } else {

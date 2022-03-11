@@ -1,5 +1,4 @@
 const BaseValidator = require('./BaseValidator')
-const { role } = require('../config/auth')
 import { isBetween, createError } from '../utils/validate'
 import v from 'validator'
 
@@ -29,7 +28,6 @@ class AuthValidator extends BaseValidator {
   async checkLogin (req: any, res: any, next: any): Promise<any> {
     try {
       const { username, password } = req.body
-      console.log('this ', this)
       if (!(v.isAlphanumeric(username) && isBetween(username, 4, 12))) {
         throw createError('Username should be alphabeticnumeric with length 4 ~ 12.') 
       }

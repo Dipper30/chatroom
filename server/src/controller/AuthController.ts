@@ -1,11 +1,10 @@
 import BaseController from './BaseController'
-import { AccountInfo } from '../types/User'
 import { AuthException, ParameterException } from '../exception'
 import { errCode } from '../config'
-import { AuthValidator } from '../validator'
 import { AuthService, TokenService } from '../service'
 import { isError } from '../utils/tools'
 import { Account } from '../types/common'
+import { NextFunction } from 'express'
 
 class Auth extends BaseController {
   

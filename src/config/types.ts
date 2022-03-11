@@ -3,3 +3,7 @@ export interface User {
   id: number,
   chatroomId: number|null,
 }
+
+export interface UnixTimeStamp {
+  ts: number,
+}

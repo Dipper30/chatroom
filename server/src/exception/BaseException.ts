@@ -26,6 +26,9 @@ class BaseException extends Error implements Exception {
     [errCode.FILE_TYPE_ERROR]: 'File Type Error.',
     [errCode.DIR_BUILD_ERROR]: 'Directory Failure',
     [errCode.DIR_NOT_EXISTS]: 'Directory Not Exists',
+    [errCode.CHATROOM_ERROR]: 'Chatroom Error',
+    [errCode.CHATROOM_ALREADY_EXISTS]: 'Chatroom Already Exists',
+    [errCode.CHATROOM_NOT_FOUND]: ' Chatroom Not Found',
   }
 
   constructor (code: number = 500, message?: string) {
