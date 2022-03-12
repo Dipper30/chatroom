@@ -79,6 +79,9 @@ module.exports = {
         'arrow-parens': 'off',
         'jsx-a11y/no-autofocus': 'off',
         'no-invalid-this': 'off',
+        'jsx-a11y/no-static-element-interactions': 'off',
+        'click-events-have-key-events': 'off',
+        'jsx-a11y/click-events-have-key-events': 'off',
     },
     "settings": {
         "import/ignore": [

@@ -1,0 +1,17 @@
+@import "../css/_common.scss";
+
+.map-selection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  .map-menu-item {
+    color: $text;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.2rem;
+    margin: 20px;
+    cursor: pointer;
+  }
+}

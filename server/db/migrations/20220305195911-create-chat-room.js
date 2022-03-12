@@ -8,11 +8,20 @@ module.exports = {
         type: Sequelize.UUID,
         primaryKey: true
       },
-      name: {
+      rid: {
         type: Sequelize.STRING,
         validate: {
           len: [4, 20]
         }
+      },
+      createTime: {
+        type: Sequelize.INTEGER(10),
+      },
+      expireTime: {
+        type: Sequelize.INTEGER(10),
+      },
+      creatorId: {
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,

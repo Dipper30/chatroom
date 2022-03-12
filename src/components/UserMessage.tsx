@@ -40,7 +40,9 @@ const UserMessage: React.FC<IUserMessage> = ({ msg, user }) => {
           </>)
       }
       <div className={`message${selfStyle}`}>
-        { msg.content }
+        <div className='inner'>
+          { msg.content }
+        </div>
       </div>
     </>
   )

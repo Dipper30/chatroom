@@ -1,28 +1,58 @@
 import { Server as ServerType } from 'http'
 // import { onRouter, emitRouter, SocketRouter } from './router'
 import { ChatRoomService } from '../service'
+import { Server } from 'socket.io'
+import resgisterMap1Router from './map1Handler'
+import resgisterMap2Router from './map2Handler'
 
-const { Server } = require('socket.io')
+const MAP1_NAMESPACE = 'map1'
+const MAP2_NAMESPACE = 'map2'
 
 export const createSocket = (server: ServerType): any => {
-  const socket = new Server(server, {
+  const io = new Server(server, {
     cors: {
       origin: '*',
     },
   })
-  socket.on('connection', async (socket: any) => {
-    console.log('connected!')
-    // let users load message
-    const info = await ChatRoomService.getAllUsersInChatRoom('b0b45ff0-9f94-11ec-9f8c-ffce63e7528f')
-    socket.broadcast.emit('roomInfo', info)
-    socket.broadcast.emit('loadMessage')
-    socket.emit('roomInfo', info)
-    socket.emit('loadMessage')
-    useSocketRouter(socket)
 
+  io.engine.on("connection_error", (err: any) => {
+    console.log(err.req);      // the request object
+    console.log(err.code);     // the error code, for example 1
+    console.log(err.message);  // the error message, for example "Session ID unknown"
+    console.log(err.context);  // some additional error context
+  })
+
+  // initialize name space
+  const map1Socket = io.of(MAP1_NAMESPACE)
+  const map2Socket = io.of(MAP2_NAMESPACE)
+
+  map1Socket.on('connection', (socket: any) => {
+    console.log('map1 connected')
+    socket.uid = socket.handshake.query.uid
+    console.log(socket.handshake.query.uid)
+    // console.log(map1Socket.)
+    // console.log(map1Socket.server)
+
+    console.log(map1Socket.sockets.size)
+    // console.log(map1Socket.sockets.get(socket.id));
+    
+    for (let i in map1Socket) {
+      // console.log(i)
+    }
+    // socket.on('message', () => console.log(1+map1Socket.sockets.size))
+
+    // map1Socket.emit('broadcast', socket.id)
+    // map1Socket.emit('broadcast', `connected sokcetid: ${socket.id}`)
+    resgisterMap1Router(map1Socket, socket)
+  })
+
+  map2Socket.on('connection', (socket: any) => {
+    console.log('map2 connected')
+    map2Socket.emit('broadcast', `connected sokcetid: ${socket.id}`)
+    resgisterMap2Router(map2Socket, socket)
   })
   
-  return socket
+  return io
 }
 
 export const useSocketRouter = (socket: any) => {

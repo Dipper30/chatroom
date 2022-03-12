@@ -1,5 +1,14 @@
+@import "./css/_common.scss";
+
 .App {
   text-align: center;
+  background-color: #282c34;
+  color: $text;
+  // width: 100vw;
+  overflow: hidden;
+  &::-webkit-scrollbar {
+    display: none; /* Chrome Safari */
+  }
 }
 
 .App-logo {

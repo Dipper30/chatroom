@@ -1,8 +1,15 @@
 import NotifyFC from '../components/common/Notify'
 import ReactDOM from 'react-dom'
 
+// interface INotify {
+//   msg: String,
+//   delay: Number,
+//   type: 'success' | 'error'
+// }
+
 class NotifyGenerator {
   static message = []
+
   static instance = null
 
   constructor () {
@@ -45,7 +52,6 @@ class NotifyGenerator {
 
   addMessage (msg) {
     const index = this.addToArray(msg)
-    console.log('@@@@ ', index)
     const div = document.createElement('div')
     div.className = 'notify'
     div.style = `top: ${30 + index * 50}px;`
@@ -53,7 +59,6 @@ class NotifyGenerator {
       div.className = 'notify enter'
     }, 50)
     document.body.appendChild(div)
-    console.log(this.message, this.message.length)
     ReactDOM.render(
       <NotifyFC message={msg.msg} delay={msg.delay} type={msg.type} height={this.message.length} />,
       div)

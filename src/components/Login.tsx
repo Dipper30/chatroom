@@ -33,7 +33,7 @@ const Login: React.FC = (props: any) => {
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('uid', res.data.user.id)
       // go to chatroom
-      navigate('/chat')
+      navigate('/entry')
     }
     setLock(false)
     clearTimeout(timer)

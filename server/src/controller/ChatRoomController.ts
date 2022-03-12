@@ -14,7 +14,7 @@ class ChatRoom extends BaseController {
       const userExists: any = await AuthService.ifHasAccount(data.uid)
       if (!userExists) throw new ChatRoomException(errCode.CHATROOM_ERROR, 'Invalid User Id: User Not Found!')
       
-      const chatRoom: any = await ChatRoomService.createChatroom(data)
+      const chatRoom: any = await ChatRoomService.createChatRoom(data.uid, data.name)
       if (isError(chatRoom)) throw chatRoom
 
       res.json({
@@ -33,7 +33,7 @@ class ChatRoom extends BaseController {
     try {
       const Token = new TokenService(req.headers.token)
       const { userID } = Token.verifyToken()
-      // console.log('???', userID)
+
       if (!userID) throw new TokenException()
       
       const messages: any = await ChatRoomService.getMessage(Number(userID))

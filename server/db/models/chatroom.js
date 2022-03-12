@@ -19,7 +19,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       primaryKey: true
     },
-    name: DataTypes.STRING
+    rid: DataTypes.STRING,
+    createTime: DataTypes.INTEGER,
+    expireTime: DataTypes.INTEGER,
+    creatorId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'ChatRoom',

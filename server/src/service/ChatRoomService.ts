@@ -3,6 +3,7 @@ import { ChatRoomException } from '../exception'
 import { Exception } from '../types/common'
 import { getUnixTS } from '../utils/tools'
 import BaseService from './BaseService'
+import { Op } from 'sequelize'
 const models = require('../../db/models/index.js')
 const { 
   v1: uuidv1,
@@ -24,11 +25,33 @@ class ChatRoom extends BaseService {
     super()
   }
 
-  async createChatroom (params: { uid: number, name: string }) {
+  async createChatRoom (uid: number, rid: string) {
     // const time: number = getUnixTS()
     const uuid = uuidv1()
+    const createTime = getUnixTS()
+    // expires in 7 days
+    const expireTime = createTime + 7 * 24 * 60 * 60
     try {
-      const cr = await ChatRoomModel.create({ ...params, uuid })
+      const cr = await ChatRoomModel.create({
+        uuid,
+        createTime,
+        expireTime,
+        rid,
+        creatorId: uid,
+      })
+      return cr
+    } catch (error) {
+      return error
+    }
+  }
+
+  async deleteChatRoom (rid: string) {
+    try {
+      const cr = await ChatRoomModel.destroy({
+        where: {
+          rid,
+        },
+      })
       return cr
     } catch (error) {
       return error
@@ -42,7 +65,7 @@ class ChatRoom extends BaseService {
    */
   async getAllUsersInChatRoom (cid: any) {
     try {
-      console.log('@@@@@@@@',typeof cid, cid)
+      console.log('@@@@@@@@', typeof cid, cid)
       const users = await UserModel.findAll({
         where: {
           chatroomId: cid,
@@ -64,29 +87,61 @@ class ChatRoom extends BaseService {
    * @param cid 
    * @returns {Boolean} if the message has been added successfully
    */
-  async sendMessage (uid: number, content: string, cid: string): Promise<any> {
+  async sendMessage (uid: number, content: string, rid: string): Promise<any> {
     try {
       // check if the user is in chatroom
-      console.group('?lllllllll',uid, cid)
-      const user = await UserModel.findOne({
-        where: {
-          id: uid,
-          chatroomId: cid,
-        },
-      })
+      console.group('?lllllllll', uid, rid)
+      // const user = await UserModel.findOne({
+      //   where: {
+      //     id: uid,
+      //     chatroomId: cid,
+      //   },
+      // })
 
-      console.log('@@@@@', user)
-      if (!user) throw new ChatRoomException(errCode.CHATROOM_ERROR, 'User Not in Room!')
+      // console.log('@@@@@', user)
+      // if (!user) throw new ChatRoomException(errCode.CHATROOM_ERROR, 'User Not in Room!')
       const currentTime = getUnixTS()
       const msg = await MessageModel.create({
         uid,
         content,
-        cid,
+        cid: rid,
         createTime: currentTime,
       })
       return true
     } catch (error) {
       return error
+    }
+  }
+
+  async getMessages (rid: string): Promise<any> {
+    try {
+      const ts = getUnixTS()
+      const cr = await ChatRoomModel.findOne({
+        where: {
+          rid,
+          expireTime: {
+            [Op.gt]: ts,
+          },
+        },
+      })
+      const msg = await MessageModel.findAll({
+        where: {
+          cid: rid,
+          createTime: {
+            [Op.gt]: cr.createTime,
+          },
+        },
+        include: [
+          {
+            model: UserModel,
+            as: 'User',
+          },
+        ],
+      })
+      return msg
+    } catch (error) {
+      console.log(error)
+      
     }
   }
 

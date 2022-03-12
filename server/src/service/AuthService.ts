@@ -9,6 +9,7 @@ import { AuthException } from '../exception'
 
 const models = require('../../db/models/index.js')
 const { sequelize } = require('../../db/models')
+import { Op } from 'sequelize'
 const {
   User: UserModel,
   // Home_Customer,
@@ -116,6 +117,21 @@ class Auth extends BaseService {
       }
     } catch (error) {
       return error
+    }
+  }
+
+  async getAllUserInfo (uids: number[]) {
+    try {
+      const users = await UserModel.findAll({
+        where: {
+          id: {
+            [Op.in]: uids,
+          },
+        },
+      })
+      return users
+    } catch (error) {
+      console.log(error)
     }
   }
 

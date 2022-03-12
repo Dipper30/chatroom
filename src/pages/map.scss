@@ -1,0 +1,26 @@
+@import "../css/_common.scss";
+
+.map {
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  .content {
+    height: 100vh;
+    .canvas-container {
+      height: calc(100vh - 200px);
+    }
+    .footer {
+      height: 200px;
+    }
+    width: 100%;
+  }
+  .sider {
+    width: 0;
+    transition: 0.5s ease-in;
+    background-color: $text;
+    &.expand {
+      width: 600px;
+    }
+  }
+}
