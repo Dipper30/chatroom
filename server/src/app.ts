@@ -4,6 +4,7 @@ const httpServer = require('http')
 const router = require('./router/index.ts')
 const fs = require('fs')
 import { createSocket, useSocketRouter } from './socket'
+import SocketFrame from './socket/SocketFrame'
 const fileUpload = require('express-fileupload') // parse uploaded file
 import { Exception } from './types/common'
 require('dotenv').config()
@@ -85,10 +86,12 @@ app.use((err: Exception, req: any, res: any, next: any) => {
 // const http = require('http')
 // const server = http.createServer(app)
 const server = httpServer.createServer(app)
-createSocket(server)
+const io: any = createSocket(server)
+const socketFrame = SocketFrame.getInstance(io.of('/map1'))
+socketFrame.startFrameUpdate()
 
 server.listen(3000, '0.0.0.0', () => {
   console.log('hello Chat')
 })
 
-// console.log(uuidv1())
+// console.log(process.env.INTERVAL)

@@ -30,7 +30,7 @@ module.exports = {
     ],
     'rules': {
         // 'prettier/prettier': 2,
-        'indent': ['warn', 2],
+        // 'indent': ['warn', 2],
         'quotes': ['warn', 'single'],
         // 'no-unresolved': ['warn'],
         'comma-dangle': ['warn', 'never'],
@@ -82,6 +82,8 @@ module.exports = {
         'jsx-a11y/no-static-element-interactions': 'off',
         'click-events-have-key-events': 'off',
         'jsx-a11y/click-events-have-key-events': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
     },
     "settings": {
         "import/ignore": [

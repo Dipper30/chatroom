@@ -1,0 +1,55 @@
+const newSocket: any = io(config.SERVER_URL + '/map1', { query: { uid: getUID() } })
+      newSocket.on('connect', (d: any) => {
+        console.log('connect! ', d)
+      })
+      // newSocket.on('message', (data: string) => {
+      //   setMsg(data)
+      // })
+      newSocket.on('connect_error', (reason: string) => {
+        console.log('error: ', reason)
+      })
+      // newSocket.on('broadcast', (data: any) => {
+      //   console.log('broadcast', data)
+      //   setMsg(data)
+      // })
+      newSocket.on('roomInfo', (res: SocketResonpse) => {
+        console.log(res)
+        NotifyGenerator.generateNotify(res.msg)
+        setRoomInfo(res.data)
+      })
+      newSocket.on('members', (data: any) => {
+        setMembers(data.data)
+        console.log(data.data)
+      })
+
+      newSocket.on('notify', (message: string) => {
+        NotifyGenerator.generateNotify(message)
+      })
+
+      newSocket.on('updateMessages', async (res: SocketResonpse) => {
+        console.log('load Message!!')
+        const { msg, data } = res
+        console.log('get', data)
+        setMessageList(data)
+      })
+
+      newSocket.on('disconnect', () => {
+        // do something
+      })
+      // newSocket.on('loadMessage', async (data: any) => {
+      //   // pull messages
+      //   const res = await getMessage()
+      //   if (handleResult(res, false)) {
+      //     fn.setMessageList(res.data.messages)
+      //   }
+      // })
+      // newSocket.on('roomInfo', async (data: any) => {
+      //   // pull messages
+      //   const [chatroom, users] = data
+      //   console.log('room1 ', data)
+      //   fn.setChatroom(chatroom)
+      //   fn.setUsers(users)
+      // })
+      // newSocket.emit('createChatRoom')
+      setSocket(newSocket)
+      printSocket()

@@ -19,6 +19,7 @@ const router: Router = Router()
 
 // auth
 router.post('/login', AuthValidator.checkLogin, AuthController.login)
+router.post('/token', AuthController.loginByToken)
 // router.post('/login', AuthController.login)
 // router.post('/token', AuthController.getUserInfo)
 

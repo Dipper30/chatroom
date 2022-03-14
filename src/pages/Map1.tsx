@@ -1,14 +1,19 @@
+/* eslint-disable jsx-a11y/tabindex-no-positive */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useEffect, useState } from "react"
-import useChatSocket from "../hooks/useChatSocket"
-import { Socket, io } from 'socket.io-client'
 import config from "../config"
 import './map.scss'
 import NotifyGenerator from '../service/notify'
 import ChatRoom from '../components/Chat'
-import { getUID, handleResult } from '../service/utils'
-import { getMessage } from "../request/config"
+import { getToken, getUID, getUser, handleResult, reduxDispatch } from '../service/utils'
+import { getMessage, loginByToken } from "../request/config"
+import { startCanvasGame } from '../canvas'
+import { useNavigate } from 'react-router-dom'
+import { connect, useSelector } from "react-redux"
+import { setUser } from "../store/actions/user"
+import MapSocket from '../service/Socket'
+import { setInChat, setMessages } from "../store/actions/map"
 
 interface Map1Props {
   
@@ -25,8 +30,9 @@ interface SocketResonpse {
   msg: string,
   data: any,
 }
- 
-const Map1: React.FC<Map1Props> = () => {
+
+const Map1: React.FC<Map1Props> = (props: any) => {
+  const navigate = useNavigate()
   const initialSocket: any = null
   const initialRoomInfo: RoomInfo = {
     room: {
@@ -35,113 +41,150 @@ const Map1: React.FC<Map1Props> = () => {
     members: [],
   }
   // const socket = useChatSocket({ setMsg, setMessageList, setChatroom, setUsers })
-  const [socket, setSocket] = useState<any>(initialSocket)
-  const [inChat, toggleInChat] = useState<boolean>(false)
+  const [socketInstance, setSocket] = useState<any>(initialSocket)
   const [messages, setMessageList] = useState<any[]>([])
   const [roomInfo, setRoomInfo] = useState<RoomInfo>(initialRoomInfo)
   const [rooms, setRooms] = useState<RoomInfo[]>([])
   const [members, setMembers] = useState<any[]>([])
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  // redux
+  const map = useSelector((state: any) => state.map)
+
+  const printSocket = () => {
+    console.log(socketInstance)
+  }
 
   useEffect(() => {
-    if (!socket) {
-      const newSocket: any = io(config.SERVER_URL + '/map1', { query: { uid: getUID() } })
-      newSocket.on('connect', (d: any) => {
-        console.log('connect! ', d)
-      })
-      // newSocket.on('message', (data: string) => {
-      //   setMsg(data)
-      // })
-      newSocket.on('connect_error', (reason: string) => {
-        console.log('error: ', reason)
-      })
-      // newSocket.on('broadcast', (data: any) => {
-      //   console.log('broadcast', data)
-      //   setMsg(data)
-      // })
-      newSocket.on('roomInfo', (res: SocketResonpse) => {
-        console.log(res)
-        NotifyGenerator.generateNotify(res.msg)
-        setRoomInfo(res.data)
-      })
-      newSocket.on('members', (data: any) => {
-        setMembers(data.data)
-        console.log(data.data)
-      })
+    // if (map.inChat) window.addEventListener('keydown', quitRoomEvent)
+    // if (!map.inChat) window.removeEventListener('keydown', quitRoomEvent)
+  }, [map.inChat])
 
-      newSocket.on('notify', (message: string) => {
-        NotifyGenerator.generateNotify(message)
-      })
-
-      newSocket.on('updateMessages', async (res: SocketResonpse) => {
-        console.log('load Message!!')
-        const { msg, data } = res
-        console.log('get', data)
-        setMessageList(data)
-      })
-
-      newSocket.on('disconnect', () => {
-        // do something
-      })
-      // newSocket.on('loadMessage', async (data: any) => {
-      //   // pull messages
-      //   const res = await getMessage()
-      //   if (handleResult(res, false)) {
-      //     fn.setMessageList(res.data.messages)
-      //   }
-      // })
-      // newSocket.on('roomInfo', async (data: any) => {
-      //   // pull messages
-      //   const [chatroom, users] = data
-      //   console.log('room1 ', data)
-      //   fn.setChatroom(chatroom)
-      //   fn.setUsers(users)
-      // })
-      // newSocket.emit('createChatRoom')
-      setSocket(newSocket)
-      // console.log(newSocket)
-    }
-    return () => socket ? socket.close() : {}
-  }, [socket])
-
+  // useEffect(() => {
+  //   startCanvasGame()
+  // })
   // const createChatRoom = () => {
   //   socket.emit('createChatRoom')
   //   console.log('send')
   // }
 
+  // login
+  useEffect(() => {
+    const u = getUser()
+    if (!u || !u.username) {
+      // get user info by token
+      const token = getToken()
+      if (token) {
+        loginByToken().then((res: any) => {
+          console.log(res)
+          if (handleResult(res, false)) {
+            setCurrentUser(res.data.user)
+            props.setUser(res.data.user)
+            localStorage.setItem('token', res.data.token)
+            localStorage.setItem('uid', res.data.user.id)
+            const socketInstance = MapSocket.getInstance()
+            setSocket(socketInstance)
+            socketInstance.startCanvasGame()
+          } else {
+            navigate('/')
+          }
+        }).catch((err: any) => {
+          console.log(err)
+          navigate('/')
+        })
+      } else {
+        // redirect to login page
+        navigate('/')
+      }
+    } else {
+      const socketInstance = MapSocket.getInstance()
+      setSocket(socketInstance)
+      socketInstance.startCanvasGame()
+    }
+  }, [])
+
+  // useEffect(() => {
+  //   // focus canvas if chat window is closed
+  //   console.log('@@@@@@@@@', map.inChat)
+  //   if (!map.inChat) {
+  //     const canvas: any = document.querySelector('canvas')
+  //     canvas.focus()
+  //     console.log('@@@@@@@@@ remove' )
+  //     window.removeEventListener('keydown', quitRoomEventBind, true)
+  //   } else {
+  //     console.log('@@@@@@@@@ add' )
+  //     window.addEventListener('keydown', quitRoomEventBind, true)
+  //   }
+    
+  // }, [map.inChat])
+
+  const quitRoomEvent = (e: KeyboardEvent) => {
+    if (e.code == 'Escape' && map.inChat) {
+      socketInstance.leaveRoom()
+    }
+  }
+  // const quitRoomEventBind = quitRoomEvent.bind(this)
+
   const enterRoom = (roomId: string) => {
     console.log(roomId)
-    socket.emit('joinRoom', roomId)
-    toggleInChat(true)
+    reduxDispatch(setInChat(true))
+    socketInstance.emit('joinRoom', roomId)
   }
-
   const leaveRoom = (roomId: string) => {
-    socket.emit('leaveRoom', roomId)
-    console.log(roomId)
-    toggleInChat(false)
+    socketInstance.leaveRoom()
+    reduxDispatch(setInChat(false))
   }
+  useEffect(() => {
+    const listener = () => {
+      MapSocket.instance = null
+      socketInstance.canvasInit = false
+    }
+    window.addEventListener('beforeunload', listener)
+    return () => {
+      const socket = MapSocket.getInstance()
+      socket.close()
+      window.removeEventListener('beforeunload', listener)
+      MapSocket.instance = null
+      socket.canvasInit = false
+    }
+  }, [])
 
   return (
     <div className='map'>
-      <div className='content'>
+      <div id='mapcontent' className='content'>
         <div className='canvas-container'>
-          <div className='operations'>
+          <canvas className="map1-canvas" tabIndex={0}></canvas>
+          {/* <div className='operations'>
             <button onClick={() => enterRoom('room1')}> Join Room 1</button>
             <button onClick={() => enterRoom('room2')}> Join Room 2</button>
-            {/* <button onClick={createChatRoom}>create new chat room</button> */}
-          </div>
+            <button onClick={createChatRoom}>create new chat room</button>
+          </div> */}
         </div>
-        <div className='footer'>
+        {/* <div className='footer'>
           没有什么信息...
-        </div>
+        </div> */}
       </div>
-      <div className={inChat ? 'sider expand' : 'sider'}>
+      <div className={map.inChat ? 'sider expand' : 'sider'}>
         {
-          !inChat ? '' : <ChatRoom leaveRoom={leaveRoom} messages={messages} roomInfo={roomInfo} socket={socket} users={members}></ChatRoom>
+          <ChatRoom leaveRoom={leaveRoom} messages={map.messages} roomInfo={map.roomInfo} socket={socketInstance} users={map.members}></ChatRoom>
         }
       </div>
-      {/* <div>{msg}</div> */}
     </div>
   )
 }
- 
-export default Map1
+
+// const mapStateToProps = (state: any, ownProps = {}) => {
+//   console.log(state) // state
+//   console.log(ownProps) // {}
+// }
+
+export default connect(
+  (state: any) => ({
+    user: state.user,
+  }),
+  {
+    setUser,
+    setMessages,
+    setInChat,
+  },
+)(Map1)

@@ -27,18 +27,14 @@ export const createSocket = (server: ServerType): any => {
   const map2Socket = io.of(MAP2_NAMESPACE)
 
   map1Socket.on('connection', (socket: any) => {
-    console.log('map1 connected')
+    console.log('map1 connected ', socket.handshake.query.username)
     socket.uid = socket.handshake.query.uid
-    console.log(socket.handshake.query.uid)
+    socket.username = socket.handshake.query.username
     // console.log(map1Socket.)
     // console.log(map1Socket.server)
 
     console.log(map1Socket.sockets.size)
     // console.log(map1Socket.sockets.get(socket.id));
-    
-    for (let i in map1Socket) {
-      // console.log(i)
-    }
     // socket.on('message', () => console.log(1+map1Socket.sockets.size))
 
     // map1Socket.emit('broadcast', socket.id)
@@ -59,6 +55,7 @@ export const useSocketRouter = (socket: any) => {
   // for (let r of onRouter) {
   //   socket.on(r.route, r.callback)
   // }
+  
   socket.on('message', async (data: any) => {
     // resolve value
     const kvs = data.split(',')

@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 import env from '../config'
+import { getToken } from '../service/utils'
 console.log('base_url', env.SERVER_URL)
 // const apiBaseURL = env.SERVER_URL + '/api/v1'
 const apiBaseURL = process.env.REACT_APP_ENVIRONMENT == 'local' ? 'http://10.0.0.154:8080/api/v1' : 
@@ -20,18 +21,18 @@ export const http = axios.create({
 })
 
 http.defaults.headers.post['Content-Type'] = 'application/json'
-// let token = localStorage.getItem('token')
-// if (token) http.defaults.headers.common['token'] = token
-// try {
-//   let token = localStorage.getItem('token')
-//   if (token) http.defaults.headers.post['token'] = token
-// } catch (error) {
-//   // do nothing
-// }
+
+try {
+  let token = getToken()
+  console.log
+  if (token) http.defaults.headers.common['token'] = token
+} catch (error) {
+  // do nothing
+}
 
 http.interceptors.request.use(
   (config: any) => {
-    const token = localStorage.getItem('token')
+    let token = getToken()
     config.headers.token = token
     return config
   },
@@ -81,7 +82,8 @@ export const get = (url: string, params?: any): Promise<AxiosResponse<any, any>>
 /**
  * post request
  */
-export const post = (url: string, params: any): Promise<AxiosResponse<any, any>> => {
+export const post = (url: string, params?: any): Promise<AxiosResponse<any, any>> => {
+  if (!params) return http.post(url)
   return http.post(url, params)
 }
 

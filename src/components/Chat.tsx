@@ -5,6 +5,8 @@ import { withUser } from '../service/utils'
 import UserMessage from './UserMessage'
 import generator from '../service/notify'
 import usePrevious from '../hooks/usePrev'
+import MapSocket from '../service/Socket'
+import socket from '../config/socket'
 
 interface ChatRoomProps {
   socket: any,
@@ -25,10 +27,11 @@ const ChatRoom: React.FC<ChatRoomProps> = (props: ChatRoomProps) => {
   const [msg, setMsg] = useState<string>('')
   const [chatroom, setChatroom] = useState<RoomInfo>(props.roomInfo)
   const [users, setUsers] = useState<any>([])
-
-
-  const socket = props.socket
+  const [socketInstance, setSocket] = useState<any>(props.socket)
   // const users = props.users
+  useEffect(() => {
+    setSocket(props.socket)
+  }, [props.socket])
 
   // let socket: any = null
   // socket = useChatSocket({ setMsg, setMessageList, setChatroom, setUsers })
@@ -41,9 +44,9 @@ const ChatRoom: React.FC<ChatRoomProps> = (props: ChatRoomProps) => {
       generator.generateNotify('Message cannot be empty!')
       return
     }
-    console.log('send ', { input, rid: props.roomInfo.room.name })
-    if (socket) socket.emit('sendText', { input, rid: props.roomInfo.room.name })
+    if (socketInstance) socketInstance.sendMessage({ input, rid: props.roomInfo.room.name })
     else console.log('no socket')
+    console.log('send ', { input, rid: props.roomInfo.room.name })
     inputEl.current.value = ''
     inputEl.current.focus()
     setInput('')
@@ -53,11 +56,14 @@ const ChatRoom: React.FC<ChatRoomProps> = (props: ChatRoomProps) => {
     console.log(e.code)
     if (e.code == 'Enter') {
       sendMsg()
+    } else if (e.code == 'Escape') {
+      leaveRoom()
     }
+    
   }
 
   const leaveRoom = () => {
-    props.leaveRoom(props.roomInfo.room.name)
+    socketInstance.leaveRoom(props.roomInfo.room.name)
   }
 
   useEffect(() => {
@@ -75,18 +81,18 @@ const ChatRoom: React.FC<ChatRoomProps> = (props: ChatRoomProps) => {
           <div className='header'>
             { props.roomInfo.room.name }({props.roomInfo.members.length})
           </div>
-          <div className='exit' onClick={leaveRoom}>Exit</div>
+          <div className='exit' onClick={leaveRoom}>Exit( or press esc )</div>
           <div className='chat-box-view' ref={chatBoxView}>
             <div className='chat-box'>
               {
-                props.messages.map( (msg) => <UserMessage key={msg.id} msg={msg} user={msg.User}></UserMessage> )
+                props.messages?.length > 0 ? props.messages.map( (msg) => <UserMessage key={msg.id} msg={msg} user={msg.User}></UserMessage> ) : ''
               }
             </div>
           </div>
         </div>
         
         <div className='type-box'>
-          <input onKeyDown={onSendClicked} ref={inputEl} placeholder='Type somthing...' onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)} />
+          <input id='chatinput' onKeyDown={onSendClicked} ref={inputEl} placeholder='Type somthing...' onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)} />
           <button onClick={sendMsg}>Send</button>
         </div>
       </div>

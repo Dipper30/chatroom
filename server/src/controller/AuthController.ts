@@ -1,5 +1,5 @@
 import BaseController from './BaseController'
-import { AuthException, ParameterException } from '../exception'
+import { AuthException, ParameterException, TokenException } from '../exception'
 import { errCode } from '../config'
 import { AuthService, TokenService } from '../service'
 import { isError } from '../utils/tools'
@@ -45,7 +45,6 @@ class Auth extends BaseController {
   async login (req: any, res: any, next: any): Promise<any> {
     try {
       const data: Account = req.body
-      console.log('??', req.body)
       // const valid: AuthValidator = new AuthValidator(data)
       // if (!valid.checkAuthParam()) throw new ParameterException()
 
@@ -69,25 +68,30 @@ class Auth extends BaseController {
     }
   }
 
-  // async getInfoByToken (req: any, res: any, next: any): Promise<any> {
-  //   try {
-  //     const token = new TokenService(req.headers.token)
-  //     const decode = token.verifyToken()
-  //     if (!decode) throw new TokenException()
+  async loginByToken (req: any, res: any, next: any): Promise<any> {
+    try {
+      const token = new TokenService(req.headers.token)
+      const decode = token.verifyToken()
+      if (!decode) throw new TokenException()
 
-  //     const user = await AuthService.findAccountByUserID(decode.userID)
-  //     if (!user) throw new TokenException()
-  //     res.json({
-  //       code: 200,
-  //       data: {
-  //         user,
-  //       },
-  //     })
+      const user = await AuthService.findAccountByUserID(decode.userID)
+      if (!user) throw new TokenException()
 
-  //   } catch (error) {
-  //     next(error)
-  //   }
-  // }
+      const t = new TokenService({ userID: user.id, username: user.username })
+      const newToken = t.generateToken()
+
+      res.json({
+        code: 200,
+        data: {
+          user,
+          token: newToken,
+        },
+      })
+
+    } catch (error) {
+      next(error)
+    }
+  }
 
   // async getUserInfo (req: any, res: any, next: any): Promise<any> {
   //   try {

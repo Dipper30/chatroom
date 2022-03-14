@@ -1,6 +1,7 @@
 /* eslint-disable no-invalid-this */
 import { getTS } from '../utils/tools'
 import { AuthService, ChatRoomService } from '../service'
+import SocketFrame, { UserFrameInfo } from './SocketFrame'
 
 const ROOM1: string = 'room1'
 const ROOM2: string = 'room2'
@@ -75,6 +76,7 @@ const handler = (io: any, socket: any) => {
   }
 
   const joinRoom = async (rid: string) => {
+    console.log(socket.rooms)
     if (socket?.rooms?.size >= 2) {
       // already in a room
       io.emit('notify', 'already in a room')
@@ -83,6 +85,7 @@ const handler = (io: any, socket: any) => {
     let sockets = await io.in(rid).fetchSockets()
     console.log('join ', rid)
     socket.join(rid)
+    io.in(socket.id).emit('enterRoom', { msg: 'You have entered room ' + rid, data: {} })
     if (sockets.length == 0) {
       // no member in this room
       // generate new chatroom
@@ -94,6 +97,7 @@ const handler = (io: any, socket: any) => {
     // console.log('sockets' ,sockets.length)
     // const created = await ChatRoomService.createChatRoom(rid)
     const info = await getRoomInfo(rid)
+    socket.broadcast.in(rid).emit('notify', 'new member '+ socket.id)
     io.in(rid).emit('roomInfo', { msg: 'new member '+ socket.id, data: info })
     const msg = await ChatRoomService.getMessages(rid)
     // console.log('@@@@@text ', msg)
@@ -109,9 +113,10 @@ const handler = (io: any, socket: any) => {
       const deleted = await ChatRoomService.deleteChatRoom(rid)
 
     }
+    socket.broadcast.in(rid).emit('notify', 'member leaves '+ socket.id)
     const info = await getRoomInfo(rid)
-    io.in(rid).emit('roomInfo', { msg: 'new member '+ socket.id, data: info })
-
+    io.in(rid).emit('roomInfo', { msg: 'member leaves '+ socket.id, data: info })
+    io.in(socket.id).emit('leaveRoom', { msg: 'you have left the room ' + rid, data: {} })
   }
 
   const getAllMembers = async (rid: string) => {
@@ -122,14 +127,42 @@ const handler = (io: any, socket: any) => {
     return users
   }
 
+  const collectFrameStatus = async (status: any) => {
+    let uid = socket.uid
+    const socketFrame = SocketFrame.getInstance(io)
+    socketFrame.updateUserFrameInfo(
+      {
+        uid: uid,
+        socketId: socket.id,
+        username: socket.username,
+        status: status,
+      },
+    )
+  }
+
+  const close = () => {
+    const socketFrame = SocketFrame.getInstance(io)
+    socketFrame.removeFrameInfo(socket.uid)
+    for (let r of socket.rooms) {
+      socket.leave(r)
+    }
+    socket.disconnect()
+    
+  }
+
   const disconnecting = () => {
     console.log('disconnecting.. ', socket.id)
     notifyFriendsOfDisconnect(socket)
+    const socketFrame = SocketFrame.getInstance(io)
+    socketFrame.removeFrameInfo(socket.uid)
+    // io.to(socket.id).emit('quit')
+    
+    // socket.leave()
   }
 
   const disconnect = () => {
     const sid = socket.id
-    console.log('disconnect', sid)
+    console.log('disconnect', sid, socket.username)
   }
 
   const notifyFriendsOfDisconnect = (socket: any) => {
@@ -142,7 +175,7 @@ const handler = (io: any, socket: any) => {
   const forceLeaveRoom = (roomId: string) => {
     io.in(roomId).socketsLeave(roomId)
   }
-
+  socket.on('close', close)
   socket.on('disconnecting', disconnecting)
   socket.on('disconnect', disconnect)
   socket.on('sendText', sendText)
@@ -151,6 +184,7 @@ const handler = (io: any, socket: any) => {
   // socket.on('createChatRoom', createChatRoom)
   socket.on('joinRoom', joinRoom)
   socket.on('leaveRoom', leaveRoom)
+  socket.on('frameStatus', collectFrameStatus)
 }
 
 export default handler
