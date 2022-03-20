@@ -188,10 +188,12 @@ export default class GameSocket {
     for (let i of res.data) {
       str += i + ' '
     }
-    NotifyGenerator.addMessage(str)
+    console.log('leave')
+    
+    NotifyGenerator.generateNotify(str)
     const game = Game.getInstance()
     const world = game.getCurrentWorld()
-    world.players.filter(p => !res.data.includes(p.uid))
+    world.players = world.players.filter(p => !res.data.includes(p.uid))
   }
 
   // onChatMessage (res: SocketResponse) {

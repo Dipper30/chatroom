@@ -41,8 +41,12 @@ export default class World implements IWorld{
     this.#map = map
   }
 
-  get players (): ACanvasPlayer[] {
+  get players (): Player[] {
     return this.#players
+  }
+
+  set players (players: Player[]) {
+    this.#players = players
   }
 
   get mainPlayer () {

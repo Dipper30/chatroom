@@ -42,7 +42,7 @@ export default class SocketFrame {
       this.timer = setInterval(async () => {
         // after JSON.stringify, Map converted into {}
         // so use an array here
-        this.io.emit('frameInfo', { msg: 'frame info', data: Array.from(this.userFrameInfo) })
+        if (this.userFrameInfo.size != 0) this.io.emit('frameInfo', { msg: 'frame info', data: Array.from(this.userFrameInfo) })
         if (this.toLeave.length > 0) {
           this.io.emit('toLeave', { msg: 'someone leaves', data: this.toLeave })
           this.toLeave = []
