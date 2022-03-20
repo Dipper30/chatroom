@@ -71,5 +71,5 @@
   "pre-commit": [
     "lint"
   ],
-  "proxy": "http://10.0.0.154:3000"
+  "proxy": "http://www.transmeetpitt.com:3000"
 }

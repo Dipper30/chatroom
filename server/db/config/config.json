@@ -27,10 +27,10 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "username": "admin",
+    "password": "db123456",
+    "database": "canvas",
+    "host": "db.chqoyv7zkx75.us-east-2.rds.amazonaws.com",
     "dialect": "mysql"
   }
 }
