@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.88aed995.css",
-    "main.js": "/static/js/main.35c0542f.js",
+    "main.js": "/static/js/main.e5feaa2a.js",
     "static/js/787.28cb0dcd.chunk.js": "/static/js/787.28cb0dcd.chunk.js",
     "static/media/GameMap_map1.jpeg": "/static/media/GameMap_map1.7d9fd0da9d58e51f0ff8.jpeg",
     "static/media/bg.jpeg": "/static/media/bg.7d9fd0da9d58e51f0ff8.jpeg",
@@ -10,11 +10,11 @@
     "static/media/role.png": "/static/media/role.ca2f926d2a2e54294102.png",
     "index.html": "/index.html",
     "main.88aed995.css.map": "/static/css/main.88aed995.css.map",
-    "main.35c0542f.js.map": "/static/js/main.35c0542f.js.map",
+    "main.e5feaa2a.js.map": "/static/js/main.e5feaa2a.js.map",
     "787.28cb0dcd.chunk.js.map": "/static/js/787.28cb0dcd.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.88aed995.css",
-    "static/js/main.35c0542f.js"
+    "static/js/main.e5feaa2a.js"
   ]
 }

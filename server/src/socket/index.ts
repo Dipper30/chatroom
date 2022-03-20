@@ -12,9 +12,7 @@ export const createSocket = (server: ServerType): any => {
   const io = new Server(server, {
     cors: {
       origin: '*',
-      credentials: true,
     },
-    transports: ['websocket'],
   })
 
   io.engine.on("connection_error", (err: any) => {
