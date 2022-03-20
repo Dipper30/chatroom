@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow-restricted-names */
 import generator from './notify'
 import reduxStore from '../store'
 import moment from 'moment'
@@ -82,6 +83,11 @@ export const getMap = () => {
   return store?.map || null
 }
 
+export const getTickInterval = (): number => {
+  const store = reduxStore.getState()
+  return store?.map?.tickInterval || 100
+} 
+
 /**
  * convert timestamp into string
  */ 
@@ -112,5 +118,26 @@ export const focusElement = (ele: elementOptions) => {
       clearTimeout(t)
     }, 600)
     // chatInput?.focus()
+  }
+}
+
+export const debounce = (fn: (e: KeyboardEvent) => void, interval: number) => {
+  let timer: any = null
+  return (e: KeyboardEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const context = this
+    // eslint-disable-next-line prefer-rest-params
+    if (!timer) {
+      // 无timer直接执行
+      timer = setTimeout(() => {
+        timer = null
+      }, interval)
+      fn.call(context, e)
+    } else {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        fn.call(context, e)
+      }, interval)
+    }
   }
 }

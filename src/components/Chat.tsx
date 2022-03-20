@@ -1,18 +1,15 @@
 import React, { Props, useEffect, useRef, useState } from 'react'
 import './chatroom.scss'
-import useChatSocket from '../hooks/useChatSocket'
-import { withUser } from '../service/utils'
 import UserMessage from './UserMessage'
 import generator from '../service/notify'
 import usePrevious from '../hooks/usePrev'
-import MapSocket from '../service/Socket'
-import socket from '../config/socket'
+import GameSocket from '../game/socket/GameSocket'
+import { getInChat } from '../service/utils'
 
 interface ChatRoomProps {
-  socket: any,
   users: any[],
   roomInfo: RoomInfo,
-  leaveRoom: Function,
+  leaveRoom: () => void,
   messages: any[],
 }
 
@@ -27,11 +24,13 @@ const ChatRoom: React.FC<ChatRoomProps> = (props: ChatRoomProps) => {
   const [msg, setMsg] = useState<string>('')
   const [chatroom, setChatroom] = useState<RoomInfo>(props.roomInfo)
   const [users, setUsers] = useState<any>([])
-  const [socketInstance, setSocket] = useState<any>(props.socket)
+  const [gameSocket, setSocket] = useState<GameSocket>()
   // const users = props.users
   useEffect(() => {
-    setSocket(props.socket)
-  }, [props.socket])
+    const socket = GameSocket.getInstance()
+    setSocket(socket)
+    return () => props.leaveRoom()
+  }, [])
 
   // let socket: any = null
   // socket = useChatSocket({ setMsg, setMessageList, setChatroom, setUsers })
@@ -44,34 +43,28 @@ const ChatRoom: React.FC<ChatRoomProps> = (props: ChatRoomProps) => {
       generator.generateNotify('Message cannot be empty!')
       return
     }
-    if (socketInstance) socketInstance.sendMessage({ input, rid: props.roomInfo.room.name })
-    else console.log('no socket')
-    console.log('send ', { input, rid: props.roomInfo.room.name })
+    const socket = GameSocket.getInstance()
+    socket.sendMessage({ input, rid: props.roomInfo.room.name })
     inputEl.current.value = ''
     inputEl.current.focus()
     setInput('')
   }
 
   const onSendClicked = (e: React.KeyboardEvent) => {
-    console.log(e.code)
     if (e.code == 'Enter') {
       sendMsg()
     } else if (e.code == 'Escape') {
-      leaveRoom()
+      props.leaveRoom()
     }
     
-  }
-
-  const leaveRoom = () => {
-    socketInstance.leaveRoom(props.roomInfo.room.name)
   }
 
   useEffect(() => {
     // compare to previous message list
     // scroll to bottom by computing diff of length
-    console.log(chatBoxView.current.offsetHeight)
+    // console.log(chatBoxView.current.offsetHeight)
     chatBoxView.current.scrollTop = 100000
-    console.log(chatBoxView.current.scrollTop)
+    // console.log(chatBoxView.current.scrollTop)
   }, [props.messages])
 
   return (
@@ -81,7 +74,7 @@ const ChatRoom: React.FC<ChatRoomProps> = (props: ChatRoomProps) => {
           <div className='header'>
             { props.roomInfo.room.name }({props.roomInfo.members.length})
           </div>
-          <div className='exit' onClick={leaveRoom}>Exit( or press esc )</div>
+          <div className='exit' onClick={props.leaveRoom}>Exit( or press esc )</div>
           <div className='chat-box-view' ref={chatBoxView}>
             <div className='chat-box'>
               {

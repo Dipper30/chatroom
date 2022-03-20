@@ -1,5 +1,6 @@
 import { User } from '../../config/types'
 import api from '../../request'
+import { bindActionCreators } from 'redux'
 
 export const setInChat = (data: boolean) => ({ type: 'toggleChat', data })
 export const setRoomInfo = (data: any) => ({ type: 'setRoomInfo', data })
@@ -10,6 +11,7 @@ export const toggleInChat = (data: boolean) => {
     dispatch(setInChat(data))
   }
 }
+
 
 // async function
 // export const loginAsync = (data: any) => {

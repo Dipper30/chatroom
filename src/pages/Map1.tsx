@@ -8,12 +8,14 @@ import NotifyGenerator from '../service/notify'
 import ChatRoom from '../components/Chat'
 import { getToken, getUID, getUser, handleResult, reduxDispatch } from '../service/utils'
 import { getMessage, loginByToken } from "../request/config"
-import { startCanvasGame } from '../canvas'
+import { clearCanvas, startCanvasGame } from '../canvas'
 import { useNavigate } from 'react-router-dom'
 import { connect, useSelector } from "react-redux"
 import { setUser } from "../store/actions/user"
 import MapSocket from '../service/Socket'
 import { setInChat, setMessages } from "../store/actions/map"
+import socket from "../config/socket"
+import mapReducer from "../store/reducers/map"
 
 interface Map1Props {
   
@@ -71,6 +73,10 @@ const Map1: React.FC<Map1Props> = (props: any) => {
   // login
   useEffect(() => {
     const u = getUser()
+    // clearCanvas()
+    // MapSocket.reset()
+    console.log(' no user ', !u || !u.uesrname)
+    console.log(socketInstance)
     if (!u || !u.username) {
       // get user info by token
       const token = getToken()
@@ -82,9 +88,10 @@ const Map1: React.FC<Map1Props> = (props: any) => {
             props.setUser(res.data.user)
             localStorage.setItem('token', res.data.token)
             localStorage.setItem('uid', res.data.user.id)
-            const socketInstance = MapSocket.getInstance()
-            setSocket(socketInstance)
-            socketInstance.startCanvasGame()
+            // MapSocket.accessed = false
+            // const socket = MapSocket.getInstance()
+            setSocket(socket)
+            // socket.startCanvasGame()
           } else {
             navigate('/')
           }
@@ -97,9 +104,19 @@ const Map1: React.FC<Map1Props> = (props: any) => {
         navigate('/')
       }
     } else {
-      const socketInstance = MapSocket.getInstance()
-      setSocket(socketInstance)
-      socketInstance.startCanvasGame()
+      if (!socketInstance || socketInstance.disconnected) {
+        // MapSocket.accessed = false
+        // const socket = MapSocket.getInstance()
+        setSocket(socket)
+        console.log('@@@@', socket)
+        // socket.startCanvasGame()
+      } else {
+        socketInstance.startCanvasGame()
+      }
+    }
+    return () => {
+      setSocket(null)
+      // MapSocket.accessed = false
     }
   }, [])
 
@@ -136,16 +153,16 @@ const Map1: React.FC<Map1Props> = (props: any) => {
   }
   useEffect(() => {
     const listener = () => {
-      MapSocket.instance = null
+      // MapSocket.instance = null
       socketInstance.canvasInit = false
     }
     window.addEventListener('beforeunload', listener)
     return () => {
-      const socket = MapSocket.getInstance()
-      socket.close()
+      // const socket = MapSocket.getInstance()
+      // socket.close()
       window.removeEventListener('beforeunload', listener)
-      MapSocket.instance = null
-      socket.canvasInit = false
+      // MapSocket.instance = null
+      // socket.canvasInit = false
     }
   }, [])
 
@@ -166,7 +183,7 @@ const Map1: React.FC<Map1Props> = (props: any) => {
       </div>
       <div className={map.inChat ? 'sider expand' : 'sider'}>
         {
-          <ChatRoom leaveRoom={leaveRoom} messages={map.messages} roomInfo={map.roomInfo} socket={socketInstance} users={map.members}></ChatRoom>
+          // <ChatRoom leaveRoom={leaveRoom} messages={map.messages} roomInfo={map.roomInfo} socket={socketInstance} users={map.members}></ChatRoom>
         }
       </div>
     </div>

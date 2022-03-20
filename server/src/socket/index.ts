@@ -26,14 +26,15 @@ export const createSocket = (server: ServerType): any => {
   const map1Socket = io.of(MAP1_NAMESPACE)
   const map2Socket = io.of(MAP2_NAMESPACE)
 
-  map1Socket.on('connection', (socket: any) => {
+  map1Socket.on('connection', async (socket: any) => {
     console.log('map1 connected ', socket.handshake.query.username)
     socket.uid = socket.handshake.query.uid
     socket.username = socket.handshake.query.username
+    const ss = await map1Socket.fetchSockets()
+    console.log(map1Socket.sockets.size, ss.length)
     // console.log(map1Socket.)
     // console.log(map1Socket.server)
-
-    console.log(map1Socket.sockets.size)
+    
     // console.log(map1Socket.sockets.get(socket.id));
     // socket.on('message', () => console.log(1+map1Socket.sockets.size))
 

@@ -15,7 +15,7 @@ export default class Role implements CanvasElement {
   haultRandom = Math.random() * 160
   c: CanvasRenderingContext2D
   canvas: HTMLCanvasElement
-  baseVelocity = 4
+  baseVelocity = 2
   blocked: boolean = false
   mapSocket: any
   offsetX: number = 0

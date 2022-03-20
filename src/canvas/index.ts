@@ -42,10 +42,17 @@ const blocks: IBlock[] = []
   },
 }
 
+export const clearCanvas = () => {
+  canvas = canvas = document.querySelector('canvas')
+  c = canvas.getContext('2d')
+  c.fillStyle = 'white'
+  c.fillRect(0, 0, canvas.width, canvas.height)
+}
+
 export const startCanvasGame = (socketId: string) => {
     console.log('start game')
     
-    const socket = MapSocket.getInstance().socket
+    // const socket = MapSocket.getInstance().socket
     console.log('???????/', socketId)
     init = true
     // init canvas
@@ -56,8 +63,7 @@ export const startCanvasGame = (socketId: string) => {
     // focus canvas so keyboard events can be listened
     focusElement('canvas')
     // init variables
-    
-
+  
     const canvasSetting: CanvasSetting = {
       canvas,
       c,
@@ -66,8 +72,8 @@ export const startCanvasGame = (socketId: string) => {
     const u = getUser()
     // main role
     role = new Role(iRole, canvasSetting, RoleImageSrc, u.id, u.username, socketId)
-    role.socket = socket
-    role.mapSocket = MapSocket.getInstance()
+    // role.socket = socket
+    // role.mapSocket = MapSocket.getInstance()
     // background
     bg = new BackGround(
       { x: 0, y: 0 },
@@ -309,7 +315,7 @@ const registerKeyBoardEvent = (role: Role) => {
     switch (e.code) {
       case 'Enter':
         if (npc.dialogVisible == true) {
-          const socket = MapSocket.getInstance()
+          // const socket = MapSocket.getInstance()
           // TODO enter chatroom
           // toggle redux variable
           if (role.state == RoleState.RIGHT) role.state = RoleState.RIGHT_HAULT
@@ -320,7 +326,7 @@ const registerKeyBoardEvent = (role: Role) => {
           // remove enter listener
           removeEnterEvent()
           npc.dialogVisible = false // cancel the pop up
-          socket.joinRoom()
+          // socket.joinRoom()
           // enterRoom('room1')
         }
         break

@@ -13,7 +13,7 @@ const ChatRoom: React.FC = () => {
   const [users, setUsers] = useState<any>([])
 
   let socket: any = null
-  socket = useChatSocket({ setMsg, setMessageList, setChatroom, setUsers })
+  // socket = useChatSocket({ setMsg, setMessageList, setChatroom, setUsers })
   const [input, setInput] = useState<string>('')
   const inputEl = useRef<any>(null)
   const chatBoxView = useRef<any>(null)

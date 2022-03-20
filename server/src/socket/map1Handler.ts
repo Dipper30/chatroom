@@ -49,6 +49,7 @@ const handler = (io: any, socket: any) => {
   }
 
   const sendText = async ( { input, rid }: {input: string, rid: string} ) => {
+    console.log('send!!!!!', rid)
     const rr = await ChatRoomService.sendMessage(socket.uid, input, rid)
     // now load updated messages
     const msg = await ChatRoomService.getMessages(rid)
@@ -76,7 +77,7 @@ const handler = (io: any, socket: any) => {
   }
 
   const joinRoom = async (rid: string) => {
-    console.log(socket.rooms)
+    // console.log(socket.rooms)
     if (socket?.rooms?.size >= 2) {
       // already in a room
       io.emit('notify', 'already in a room')
@@ -84,20 +85,17 @@ const handler = (io: any, socket: any) => {
     }
     let sockets = await io.in(rid).fetchSockets()
     console.log('join ', rid)
+    // console.log(io.adapter.rooms)
     socket.join(rid)
+    // console.log(socket.rooms)
     io.in(socket.id).emit('enterRoom', { msg: 'You have entered room ' + rid, data: {} })
     if (sockets.length == 0) {
-      // no member in this room
-      // generate new chatroom
-      console.log('create', sockets.length)
-      
       const created = await ChatRoomService.createChatRoom(socket.uid, rid)
-
     }
     // console.log('sockets' ,sockets.length)
     // const created = await ChatRoomService.createChatRoom(rid)
     const info = await getRoomInfo(rid)
-    socket.broadcast.in(rid).emit('notify', 'new member '+ socket.id)
+    // socket.broadcast.in(rid).emit('notify', 'new member '+ socket.id)
     io.in(rid).emit('roomInfo', { msg: 'new member '+ socket.id, data: info })
     const msg = await ChatRoomService.getMessages(rid)
     // console.log('@@@@@text ', msg)
@@ -141,13 +139,13 @@ const handler = (io: any, socket: any) => {
   }
 
   const close = () => {
+    console.log('close')
     const socketFrame = SocketFrame.getInstance(io)
     socketFrame.removeFrameInfo(socket.uid)
     for (let r of socket.rooms) {
       socket.leave(r)
     }
-    socket.disconnect()
-    
+    socket.disconnect() 
   }
 
   const disconnecting = () => {

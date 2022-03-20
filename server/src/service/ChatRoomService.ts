@@ -90,7 +90,6 @@ class ChatRoom extends BaseService {
   async sendMessage (uid: number, content: string, rid: string): Promise<any> {
     try {
       // check if the user is in chatroom
-      console.group('?lllllllll', uid, rid)
       // const user = await UserModel.findOne({
       //   where: {
       //     id: uid,

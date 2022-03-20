@@ -7,6 +7,8 @@ const initialState = {
     members: [],
     messages: [],
   },
+  baseVelocity: 5,
+  tickInterval: 33,
 }
 
 interface Map {
@@ -16,6 +18,8 @@ interface Map {
     members: any[],
     messages: any[]
   },
+  baseVelocity: number,
+  tickInterval: number,
 }
 
 const mapReducer = (preState: Map = initialState, action: any) => {

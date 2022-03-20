@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router'
-import MapSocket from '../service/Socket'
 import './mapselection.scss'
 
 interface Props {
@@ -11,18 +10,17 @@ const MapSelection: React.FC<Props> = () => {
   const mapMenu = [
     {
       name: 'Map1',
-      route: '/map1',
+      route: '/map',
     },
     {
       name: 'Map2',
-      route: '/map2',
+      route: '/map',
     },
   ]
   
   const MapMenuItem: React.FC<{ name: string, to: string }> = (props) => {
     const navigate = useNavigate()
     const switchToMap = () => {
-      const socket = MapSocket.getInstance()
       navigate(props.to)
     }
     return (

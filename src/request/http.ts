@@ -3,10 +3,9 @@ import env from '../config'
 import { getToken } from '../service/utils'
 console.log('base_url', env.SERVER_URL)
 // const apiBaseURL = env.SERVER_URL + '/api/v1'
-const apiBaseURL = process.env.REACT_APP_ENVIRONMENT == 'local' ? 'http://10.0.0.154:8080/api/v1' : 
-  (process.env.REACT_APP_ENVIRONMENT == 'development' ? 'http://localhost:8080/api/v1' : '')
-// export const apiBaseURL = `http://localhost:3000/api/v1`
-
+// const apiBaseURL = process.env.REACT_APP_ENVIRONMENT == 'local' ? 'http://10.215.23.201:8080/api/v1' : 
+  // (process.env.REACT_APP_ENVIRONMENT == 'development' ? 'http://localhost:8080/api/v1' : '')
+export const apiBaseURL = env.SERVER_URL + '/api/v1'
 // export const apiBaseURL = `//${window.location.host}/api/v1`;
 // export const baseURL = `//${window.location.host}/signing-up`;
 
