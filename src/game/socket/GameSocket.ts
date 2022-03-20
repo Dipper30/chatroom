@@ -57,7 +57,7 @@ export default class GameSocket {
       config.SERVER_URL + '/' + this.namespace,
       {
         query: { uid: getUID(), username: getUsername() },
-        transports: ['websocket'],
+        transports: ['polling'],
         upgrade: false,
       },
     )
@@ -79,6 +79,7 @@ export default class GameSocket {
     this.#socket.on('roomInfo', this.onRoomInfo)
     this.#socket.on('updateMessages', this.onUpdateMesage)
     this.#socket.on('leaveRoom', this.onLeaveRoom)
+    this.#socket.on('toLeave', this.onToLeave)
   }
   
   /**
@@ -180,6 +181,17 @@ export default class GameSocket {
   onUpdateMesage (res: SocketResponse) {
     const { msg, data } = res
     reduxDispatch(setMessages(data))
+  }
+
+  onToLeave (res: SocketResponse) {
+    let str = 'User has left: '
+    for (let i of res.data) {
+      str += i + ' '
+    }
+    NotifyGenerator.addMessage(str)
+    const game = Game.getInstance()
+    const world = game.getCurrentWorld()
+    world.players.filter(p => !res.data.includes(p.uid))
   }
 
   // onChatMessage (res: SocketResponse) {

@@ -20,6 +20,10 @@ class Player extends CanvasPlayer implements IGameElement {
     this.position.y = this.position.y + this.velocity.y
   }
 
+  draw () {
+    this.determineCurrentAnimation()
+  }
+
   /**
    * draw image with a computed start postion
    * @param startX 

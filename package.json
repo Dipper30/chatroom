@@ -33,7 +33,7 @@
     "start": "export PORT=8080 && REACT_APP_ENVIRONMENT=development react-scripts start",
     "product": "export PORT=8080 && REACT_APP_ENVIRONMENT=production react-scripts start",
     "local": "export PORT=8080 && REACT_APP_ENVIRONMENT=local react-scripts start",
-    "build": "react-scripts build",
+    "build": "REACT_APP_ENVIRONMENT=production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "./node_modules/.bin/eslint src/*.js src/*.tsx"
