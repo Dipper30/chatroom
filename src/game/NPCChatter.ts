@@ -29,7 +29,7 @@ class NPCChatter extends NPC {
         // eslint-disable-next-line no-case-declarations
         const game = Game.getInstance()
         this.eventTriggered && game.enterChatroom(this.roomId)
-        game.getCurrentWorld().mainPlayer.removeKeyboardEvent()
+        // game.getCurrentWorld().mainPlayer.removeKeyboardEvent()
         break
     }
   }

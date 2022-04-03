@@ -57,7 +57,7 @@ export default class GameSocket {
       config.SERVER_URL + '/' + this.namespace,
       {
         query: { uid: getUID(), username: getUsername() },
-        transports: ['polling'],
+        transports: ['websokcet'],
         upgrade: false,
       },
     )

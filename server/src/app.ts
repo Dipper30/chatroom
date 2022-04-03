@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const httpServer = require('http')
+const https = require('https')
 const router = require('./router/index.ts')
 const fs = require('fs')
 import { createSocket, useSocketRouter } from './socket'
@@ -15,6 +16,8 @@ app.use(fileUpload({ limits: { fileSize: 1024 * 1024 * 5 } })) // <= 5MB
 app.use(express.static('dist'))
 
 app.get('*', async (req: any, res: any, next: any) => {
+  console.log(req.url)
+  
   if (req.url.substring(0, 10) == 'socket.io') {
     next()
   } else if(req.url.substr(0, 4) != '/api') {
@@ -23,15 +26,16 @@ app.get('*', async (req: any, res: any, next: any) => {
     // })
     
     // res.end('dist/index.html')
-    fs.readFile('dist/index.html', (err: any, data: any) => {
-      if (err) {
-        res.writeHead(404)
-        res.end(JSON.stringify(err))
-        return
-      }
-      res.writeHead(200)
-      res.end(data)
-    })
+    // fs.readFile('dist/index.html', (err: any, data: any) => {
+    //   if (err) {
+    //     res.writeHead(404)
+    //     res.end(JSON.stringify(err))
+    //     return
+    //   }
+    //   res.writeHead(200)
+    //   res.end(data)
+    // })
+    res.json( { msg: 'hello https ' })
   } else next()
 })
 
@@ -85,7 +89,12 @@ app.use((err: Exception, req: any, res: any, next: any) => {
 
 // const http = require('http')
 // const server = http.createServer(app)
-const server = httpServer.createServer(app)
+const server = https.createServer({
+  key: fs.readFileSync('cert/key.pem'),
+  cert: fs.readFileSync('cert/cert.pem'),
+}, app)
+
+// const server = httpServer.createServer(app)
 const io: any = createSocket(server)
 const socketFrame = SocketFrame.getInstance(io.of('/map1'))
 socketFrame.startFrameUpdate()
