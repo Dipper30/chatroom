@@ -7,6 +7,7 @@ import resgisterMap2Router from './map2Handler'
 
 const MAP1_NAMESPACE = 'map1'
 const MAP2_NAMESPACE = 'map2'
+export const peers: any = {}
 
 export const createSocket = (server: ServerType): any => {
   const io = new Server(server, {
@@ -31,7 +32,8 @@ export const createSocket = (server: ServerType): any => {
     socket.uid = socket.handshake.query.uid
     socket.username = socket.handshake.query.username
     const ss = await map1Socket.fetchSockets()
-    console.log(map1Socket.sockets.size, ss.length)
+    // console.log(map1Socket.sockets.size, ss.length)
+    peers[socket.uid] = socket
     // console.log(map1Socket.)
     // console.log(map1Socket.server)
     

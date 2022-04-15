@@ -2,6 +2,7 @@
 import { getTS } from '../utils/tools'
 import { AuthService, ChatRoomService } from '../service'
 import SocketFrame, { UserFrameInfo } from './SocketFrame'
+import { peers } from './index'
 
 const ROOM1: string = 'room1'
 const ROOM2: string = 'room2'
@@ -113,22 +114,59 @@ const handler = (io: any, socket: any) => {
     }
     socket.broadcast.in(rid).emit('notify', 'member leaves '+ socket.id)
     const info = await getRoomInfo(rid)
+
     io.in(rid).emit('roomInfo', { msg: 'member leaves '+ socket.id, data: info })
     io.in(socket.id).emit('leaveRoom', { msg: 'you have left the room ' + rid, data: {} })
   }
 
   const joinChat = async (data: { uid: number, rid: number }) => {
-    const { uid } =data
+    const { uid } = data
     const rid = data.rid ? data.rid : ROOM1
-    socket.broadcast.in(rid).emit('joinChat', { msg: 'member join chat', data: { uid } })
+    for (const othersId in peers) {
+      if (othersId != socket.uid) {
+        console.log('sending init receive to ' + socket.uid)
+        peers[othersId].emit('initReceive', { msg: 'init recieve', data: { uid: socket.uid } })
+      }
+    }
+    // socket.broadcast.in(rid).emit('initReceive', { msg: 'member join chat and init', data: { uid } })
     socket.join(rid)
+    /**
+     * relay a peerconnection signal to a specific socket
+     */
+    socket.on('signal', (data: { uid: number, signal: any }) => {
+      console.log('sending signal from ' + socket.uid + ' to ', data)
+      if (!peers[data.uid]) return
+      peers[data.uid].emit('signal', {
+        msg: '',
+        data: {
+          uid: socket.uid,
+          signal: data.signal,
+        },
+      })
+    })
+
+    /**
+         * Send message to client to initiate a connection
+         * The sender has already setup a peer connection receiver
+         */
+    socket.on('initSend', (uid: number) => {
+      console.log('INIT SEND by ' + socket.uid + ' for ' + uid)
+      peers[uid] && peers[uid].emit('initSend', { msg: 'initsend', data: { uid: socket.uid } })
+    })
   }
 
-  const leaveChat = async (data: { uid: number, rid: number }) => {
+  const leaveChat = async (data: { uid: number, rid: string }) => {
     const { uid } =data
     const rid = data.rid ? data.rid : ROOM1
     socket.leave(rid)
-    socket.broadcast.in(rid).emit('leaveChat', { msg: 'member leave chat', data: { uid } })
+    for (const othersId in peers) {
+      if (othersId != socket.uid) {
+        console.log('remove peer ' + socket.uid)
+        peers[othersId].emit('removePeer', { msg: '', data: { uid: socket.uid } })
+      }
+    }
+    delete peers[socket.id]
+    // socket.broadcast.in(rid).emit('leaveChat', { msg: 'member leave chat', data: { uid } })
   }
 
   const getAllMembers = async (rid: string) => {
@@ -175,6 +213,7 @@ const handler = (io: any, socket: any) => {
   const disconnect = () => {
     const sid = socket.id
     console.log('disconnect', sid, socket.username)
+    leaveChat({ uid: socket.uid, rid: ROOM1 })
   }
 
   const notifyFriendsOfDisconnect = (socket: any) => {

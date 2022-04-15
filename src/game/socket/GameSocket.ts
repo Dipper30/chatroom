@@ -5,7 +5,7 @@ import { setInChat, setMessages, setRoomInfo } from '../../store/actions/map'
 import Game from '../Game'
 import NotifyGenerator from '../../service/notify'
 import { FrameInfo } from '../types.d'
-import { connectToNewUser } from '../peer/GamePeer'
+import { addPeer, connectToNewUser, peers, removePeer } from '../peer/GamePeer'
 
 export interface SocketResponse {
   msg: string,
@@ -83,6 +83,36 @@ export default class GameSocket {
     this.#socket.on('toLeave', this.onToLeave)
     this.#socket.on('joinChat', this.onJoinChat)
     this.#socket.on('leaveChat', this.onLeaveChat)
+    this.#socket.on('initReceive', (res: SocketResponse) => {
+      const { msg, data } = res
+      console.log('INIT RECEIVE ' + data.uid)
+      addPeer(data.uid, false)
+      this.#socket.emit('initSend', data.uid)
+    })
+
+    this.#socket.on('initSend', (res: SocketResponse) => {
+        const uid = res.data.uid
+        console.log('INIT SEND ' + uid)
+        addPeer(uid, true)
+    })
+
+    this.#socket.on('removePeer', (res: SocketResponse) => {
+        const uid = res.data.uid
+        console.log('removing peer' + uid)
+        removePeer(uid)
+    })
+
+    this.#socket.on('disconnect', () => {
+        console.log('GOT DISCONNECTED')
+        for (let uid in peers) {
+          removePeer(Number(uid))
+        }
+    })
+
+    this.#socket.on('signal', (res: SocketResponse) => {
+      const { uid, signal } = res.data
+      peers[uid].peer.signal(signal)
+    })
   }
   
   /**
@@ -148,6 +178,10 @@ export default class GameSocket {
   leaveChat () {
     console.log('i leave', getUID())
     this.#socket && this.#socket.emit('leaveChat', { uid: getUID() })
+  }
+
+  signal ( uid: number, signal: any ) {
+    this.#socket && this.#socket.emit('signal', { uid, signal })
   }
 
   // #endregion
@@ -221,6 +255,7 @@ export default class GameSocket {
     const { uid } = data
     console.log('some one leaves ', uid)
   }
+
 
   // onChatMessage (res: SocketResponse) {
   //   const { msg, data } = res
