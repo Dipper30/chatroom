@@ -32,6 +32,14 @@ let localStream: MediaStream
 export const peers: any = {}
 let myVideo: HTMLVideoElement
 
+export const toggleMyVoice = () => {
+  localStream && localStream.getAudioTracks().forEach(track => track.enabled = !track.enabled)
+}
+
+export const toggleMyVideo = () => {
+  localStream && localStream.getVideoTracks().forEach(track => track.enabled = !track.enabled)
+}
+
 let peer: any = new Peer({ initiator: true })
 
 // peer.on('signal', (data: any) => {
