@@ -33,7 +33,9 @@ app.get('*', async (req: any, res: any, next: any) => {
   console.log(req.url)
   if (req.url.substring(0, 10) == 'socket.io') {
     next()
-  } else if (req.url.substr(0, 4) != '/api') {
+  } else if (req.url.substr(0, 4) == '/api') {
+    next()
+  } else {
     res.writeHead(200, {
       'Content-Type': 'text/html',
     })
@@ -47,8 +49,7 @@ app.get('*', async (req: any, res: any, next: any) => {
       res.writeHead(200)
       res.end(data)
     })
-    res.json( { msg: 'hello https ' })
-  } else next()
+  }
 })
 
 app.all('*', async (req: any, res: any, next: any) => {

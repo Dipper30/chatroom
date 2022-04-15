@@ -74,5 +74,5 @@
   "pre-commit": [
     "lint"
   ],
-  "proxy": "https://10.0.0.154:3000"
+  "proxy": "https://3.16.38.107:3000"
 }
