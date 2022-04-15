@@ -36,10 +36,10 @@ app.get('*', async (req: any, res: any, next: any) => {
   } else if (req.url.substr(0, 4) == '/api') {
     next()
   } else {
-    res.writeHead(200, {
-      'Content-Type': 'text/html',
-    })
-    res.end('build/index.html')
+    // res.writeHead(200, {
+    //   'Content-Type': 'text/html',
+    // })
+    // res.end('build/index.html')
     fs.readFile('build/index.html', (err: any, data: any) => {
       if (err) {
         res.writeHead(404)
