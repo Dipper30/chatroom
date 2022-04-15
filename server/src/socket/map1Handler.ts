@@ -117,6 +117,20 @@ const handler = (io: any, socket: any) => {
     io.in(socket.id).emit('leaveRoom', { msg: 'you have left the room ' + rid, data: {} })
   }
 
+  const joinChat = async (data: { uid: number, rid: number }) => {
+    const { uid } =data
+    const rid = data.rid ? data.rid : ROOM1
+    socket.broadcast.in(rid).emit('joinChat', { msg: 'member join chat', data: { uid } })
+    socket.join(rid)
+  }
+
+  const leaveChat = async (data: { uid: number, rid: number }) => {
+    const { uid } =data
+    const rid = data.rid ? data.rid : ROOM1
+    socket.leave(rid)
+    socket.broadcast.in(rid).emit('leaveChat', { msg: 'member leave chat', data: { uid } })
+  }
+
   const getAllMembers = async (rid: string) => {
     let uids = await io.in(rid).fetchSockets()
     uids = uids.map((i: any) => Number(i.uid))
@@ -182,6 +196,8 @@ const handler = (io: any, socket: any) => {
   // socket.on('createChatRoom', createChatRoom)
   socket.on('joinRoom', joinRoom)
   socket.on('leaveRoom', leaveRoom)
+  socket.on('joinChat', joinChat)
+  socket.on('leaveChat', leaveChat)
   socket.on('frameStatus', collectFrameStatus)
 }
 

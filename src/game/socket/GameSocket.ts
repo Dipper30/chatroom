@@ -5,6 +5,7 @@ import { setInChat, setMessages, setRoomInfo } from '../../store/actions/map'
 import Game from '../Game'
 import NotifyGenerator from '../../service/notify'
 import { FrameInfo } from '../types.d'
+import { connectToNewUser } from '../peer/GamePeer'
 
 export interface SocketResponse {
   msg: string,
@@ -50,14 +51,14 @@ export default class GameSocket {
       return false
     }
 
-    console.log(config.SERVER_URL + this.namespace)
+    console.log(config.SERVER_URL + '/' + this.namespace)
     // no socket
     
     this.#socket = io(
       config.SERVER_URL + '/' + this.namespace,
       {
         query: { uid: getUID(), username: getUsername() },
-        transports: ['websokcet'],
+        transports: ['polling'],
         upgrade: false,
       },
     )
@@ -80,6 +81,8 @@ export default class GameSocket {
     this.#socket.on('updateMessages', this.onUpdateMesage)
     this.#socket.on('leaveRoom', this.onLeaveRoom)
     this.#socket.on('toLeave', this.onToLeave)
+    this.#socket.on('joinChat', this.onJoinChat)
+    this.#socket.on('leaveChat', this.onLeaveChat)
   }
   
   /**
@@ -135,6 +138,16 @@ export default class GameSocket {
 
   sendMessage (data: { input: string, rid: string }) {
     this.#socket && this.#socket.emit('sendText', data)
+  }
+
+  joinChat () {
+    console.log('i join', getUID())
+    this.#socket && this.#socket.emit('joinChat', { uid: getUID() })
+  }
+
+  leaveChat () {
+    console.log('i leave', getUID())
+    this.#socket && this.#socket.emit('leaveChat', { uid: getUID() })
   }
 
   // #endregion
@@ -196,6 +209,19 @@ export default class GameSocket {
     world.players = world.players.filter(p => !res.data.includes(p.uid))
   }
 
+  onJoinChat (res: SocketResponse) {
+    const { msg, data } = res
+    const { uid } = data
+    console.log('some one joins ', uid)
+    connectToNewUser(uid)
+  }
+
+  onLeaveChat (res: SocketResponse) {
+    const { msg, data } = res
+    const { uid } = data
+    console.log('some one leaves ', uid)
+  }
+
   // onChatMessage (res: SocketResponse) {
   //   const { msg, data } = res
   //   reduxDispatch(setMessages(data))
@@ -230,7 +256,6 @@ export default class GameSocket {
   }
 
   // #endregion
-
 
   //   this.socket = io(
   //     config.SERVER_URL + this.namespace,

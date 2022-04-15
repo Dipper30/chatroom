@@ -169,6 +169,7 @@ const Map1: React.FC<Map1Props> = (props: any) => {
   return (
     <div className='map'>
       <div id='mapcontent' className='content'>
+        
         <div className='canvas-container'>
           <canvas className="map1-canvas" tabIndex={0}></canvas>
           {/* <div className='operations'>

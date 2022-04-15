@@ -1,9 +1,11 @@
+import { debounce, getUID } from '../service/utils'
 import Game from './Game'
 import NPC from './NPC'
+import { closeChatting, startChatting } from './peer/GamePeer'
 import { AbsolutePosition, Size } from './types.d'
 
 class NPCChatter extends NPC {
-
+  lock = false
   protected roomId: string = 'room1'
 
   constructor (spriteConfig: unknown, absolutePosition: AbsolutePosition, size: Size, collisionRadius?: number, collidable?: boolean, triggerRadius?: number) {
@@ -13,22 +15,27 @@ class NPCChatter extends NPC {
   triggerEvent (): void {
     this.eventTriggered = true
     this.keydownEvent = this.keydownEvent.bind(this)
-    this.canvas.addEventListener('keydown', this.keydownEvent)
+    this.canvas.addEventListener('keydown', this.keydownEvent, 1000)
     // this.drawDialog()
   }
 
   muteEvent (): void {
     if (this.eventTriggered == false) return
     this.eventTriggered = false
+    this.lock = false
+    closeChatting()
     this.canvas.removeEventListener('keydown', this.keydownEvent)
   }
 
   keydownEvent (e: KeyboardEvent) {
+    if (this.lock) return
     switch (e.code) {
       case 'Enter':
         // eslint-disable-next-line no-case-declarations
-        const game = Game.getInstance()
-        this.eventTriggered && game.enterChatroom(this.roomId)
+        // const peer = GamePeer.getInstance()
+        this.lock = true
+        this.eventTriggered && startChatting('chatter', { userId: getUID() })
+        // this.eventTriggered && game.enterChatroom(this.roomId)
         // game.getCurrentWorld().mainPlayer.removeKeyboardEvent()
         break
     }

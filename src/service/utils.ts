@@ -59,6 +59,11 @@ export const getUID = () => {
   return store?.user?.id || Number(localStorage.getItem('uid')) || null
 }
 
+export const getRoomId = () => {
+  const store = reduxStore.getState()
+  return store?.map?.roomInfo?.room?.name || ''
+}
+
 export const getUsername = () => {
   const store = reduxStore.getState()
   return store?.user?.username || 'offline'

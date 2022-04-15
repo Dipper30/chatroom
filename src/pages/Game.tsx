@@ -17,6 +17,7 @@ import mapReducer from "../store/reducers/map"
 import Game from "../game/Game"
 import { NameSpace } from "../game/types"
 import GameSocket from "../game/socket/GameSocket"
+import { closeChatting } from "../game/peer/GamePeer"
 
 interface MapProps {
   worldName: NameSpace,
@@ -75,6 +76,7 @@ const Map: React.FC<MapProps> = (props: MapProps) => {
     }
     
     return () => {
+      closeChatting()
       const game = Game.getInstance()
       game.endGame()
       Game.clearInstance()
@@ -86,6 +88,9 @@ const Map: React.FC<MapProps> = (props: MapProps) => {
       <div onClick={toHome} className='back'> Back </div>
       <div className='title'>test: { props.worldName }</div>
       <canvas tabIndex={0} id='game'></canvas>
+      <div className='video-container' id='video-container'>
+
+        </div>
       <div className={map.inChat ? 'sider expand' : 'sider'}>
         {
           <ChatRoom leaveRoom={leaveRoom} messages={map.messages} roomInfo={map.roomInfo} users={map.members}></ChatRoom>

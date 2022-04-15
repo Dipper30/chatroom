@@ -4,9 +4,11 @@ const httpServer = require('http')
 const https = require('https')
 const router = require('./router/index.ts')
 const fs = require('fs')
+const fileUpload = require('express-fileupload') // parse uploaded file
+
 import { createSocket, useSocketRouter } from './socket'
 import SocketFrame from './socket/SocketFrame'
-const fileUpload = require('express-fileupload') // parse uploaded file
+
 import { Exception } from './types/common'
 require('dotenv').config()
 
@@ -15,26 +17,36 @@ app.use(express.urlencoded({ extended: true }))
 app.use(fileUpload({ limits: { fileSize: 1024 * 1024 * 5 } })) // <= 5MB
 app.use(express.static('dist'))
 
+// const http = require('http')
+// const server = http.createServer(app)
+const server = https.createServer({
+  key: fs.readFileSync('cert/key.pem'),
+  cert: fs.readFileSync('cert/cert.pem'),
+}, app)
+
+// const server = httpServer.createServer(app)
+const io: any = createSocket(server)
+const socketFrame = SocketFrame.getInstance(io.of('/map1'))
+socketFrame.startFrameUpdate()
+
 app.get('*', async (req: any, res: any, next: any) => {
   console.log(req.url)
-  
   if (req.url.substring(0, 10) == 'socket.io') {
     next()
-  } else if(req.url.substr(0, 4) != '/api') {
-    // res.writeHead(200, {
-    //   'Content-Type': 'text/html',
-    // })
-    
-    // res.end('dist/index.html')
-    // fs.readFile('dist/index.html', (err: any, data: any) => {
-    //   if (err) {
-    //     res.writeHead(404)
-    //     res.end(JSON.stringify(err))
-    //     return
-    //   }
-    //   res.writeHead(200)
-    //   res.end(data)
-    // })
+  } else if (req.url.substr(0, 4) != '/api') {
+    res.writeHead(200, {
+      'Content-Type': 'text/html',
+    })
+    res.end('dist/index.html')
+    fs.readFile('dist/index.html', (err: any, data: any) => {
+      if (err) {
+        res.writeHead(404)
+        res.end(JSON.stringify(err))
+        return
+      }
+      res.writeHead(200)
+      res.end(data)
+    })
     res.json( { msg: 'hello https ' })
   } else next()
 })
@@ -86,18 +98,6 @@ app.use((err: Exception, req: any, res: any, next: any) => {
     })
   }
 })
-
-// const http = require('http')
-// const server = http.createServer(app)
-const server = https.createServer({
-  key: fs.readFileSync('cert/key.pem'),
-  cert: fs.readFileSync('cert/cert.pem'),
-}, app)
-
-// const server = httpServer.createServer(app)
-const io: any = createSocket(server)
-const socketFrame = SocketFrame.getInstance(io.of('/map1'))
-socketFrame.startFrameUpdate()
 
 server.listen(3000, '0.0.0.0', () => {
   console.log('hello Chat')

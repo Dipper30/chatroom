@@ -27,7 +27,7 @@ export default class World implements IWorld{
     this.#map = new GameMap(name)
     this.#mainPlayer = new MainPlayer(getUID(), getUsername())
     if (name == 'map1') {
-      const npc = new NPCChatter(null, { absX: 473, absY: 300 }, { width: 50, height: 50 }, 20, true, 60)
+      const npc = new NPCChatter(null, { absX: 473, absY: 300 }, { width: 50, height: 50 }, 20, true, 180)
       this.#blocks.push(npc)
       this.#npcs.push(npc)
     }
