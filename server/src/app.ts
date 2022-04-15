@@ -15,7 +15,7 @@ require('dotenv').config()
 app.use(express.json({ limit: '20mb' }))
 app.use(express.urlencoded({ extended: true }))
 app.use(fileUpload({ limits: { fileSize: 1024 * 1024 * 5 } })) // <= 5MB
-app.use(express.static('dist'))
+app.use(express.static('build'))
 
 // const http = require('http')
 // const server = http.createServer(app)
@@ -37,8 +37,8 @@ app.get('*', async (req: any, res: any, next: any) => {
     res.writeHead(200, {
       'Content-Type': 'text/html',
     })
-    res.end('dist/index.html')
-    fs.readFile('dist/index.html', (err: any, data: any) => {
+    res.end('build/index.html')
+    fs.readFile('build/index.html', (err: any, data: any) => {
       if (err) {
         res.writeHead(404)
         res.end(JSON.stringify(err))
