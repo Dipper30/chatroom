@@ -1,11 +1,11 @@
 import { io } from 'socket.io-client'
 import config from '../../config'
-import { focusElement, getUID, getUsername, reduxDispatch } from '../../service/utils'
+import { focusElement, getTS, getUID, getUsername, reduxDispatch } from '../../service/utils'
 import { setInChat, setMessages, setRoomInfo } from '../../store/actions/map'
 import Game from '../Game'
 import NotifyGenerator from '../../service/notify'
 import { FrameInfo } from '../types.d'
-import { addPeer, connectToNewUser, peers, removePeer } from '../peer/GamePeer'
+import { addPeer, peers, removePeer, setTs, getTs } from '../peer/GamePeer'
 
 export interface SocketResponse {
   msg: string,
@@ -85,33 +85,34 @@ export default class GameSocket {
     this.#socket.on('leaveChat', this.onLeaveChat)
     this.#socket.on('initReceive', (res: SocketResponse) => {
       const { msg, data } = res
-      console.log('INIT RECEIVE ' + data.uid)
-      addPeer(data.uid, false)
-      this.#socket.emit('initSend', data.uid)
+      console.log('INIT RECEIVE ' + data.cid)
+      addPeer(data.cid, false)
+      this.#socket.emit('initSend', { cid: data.cid, ts: getTs() })
     })
 
     this.#socket.on('initSend', (res: SocketResponse) => {
-        const uid = res.data.uid
-        console.log('INIT SEND ' + uid)
-        addPeer(uid, true)
+        const { cid } = res.data
+        console.log('INIT SEND ' + cid)
+        addPeer(cid, true)
     })
 
     this.#socket.on('removePeer', (res: SocketResponse) => {
-        const uid = res.data.uid
-        console.log('removing peer' + uid)
-        removePeer(uid)
+        const { cid } = res.data
+        console.log('removing peer' + cid)
+        removePeer(cid)
     })
 
     this.#socket.on('disconnect', () => {
         console.log('GOT DISCONNECTED')
-        for (let uid in peers) {
-          removePeer(Number(uid))
+        for (let cid in peers) {
+          removePeer(cid)
         }
     })
 
     this.#socket.on('signal', (res: SocketResponse) => {
-      const { uid, signal } = res.data
-      peers[uid].peer.signal(signal)
+      const { cid, signal } = res.data
+      console.log('i wanna signal ', cid, peers)
+      peers[cid].peer?.signal(signal)
     })
   }
   
@@ -172,16 +173,18 @@ export default class GameSocket {
 
   joinChat () {
     console.log('i join', getUID())
-    this.#socket && this.#socket.emit('joinChat', { uid: getUID() })
+    setTs(getTS())
+    this.#socket && this.#socket.emit('joinChat', { ts: getTs() })
   }
 
   leaveChat () {
     console.log('i leave', getUID())
-    this.#socket && this.#socket.emit('leaveChat', { uid: getUID() })
+    this.#socket && this.#socket.emit('leaveChat', { ts: getTs() })
+    setTs(getTS())
   }
 
-  signal ( uid: number, signal: any ) {
-    this.#socket && this.#socket.emit('signal', { uid, signal })
+  signal ( cid: string, signal: any, ts: number ) {
+    this.#socket && this.#socket.emit('signal', { cid, signal, ts })
   }
 
   // #endregion
@@ -247,7 +250,8 @@ export default class GameSocket {
     const { msg, data } = res
     const { uid } = data
     console.log('some one joins ', uid)
-    connectToNewUser(uid)
+    // connectToNewUser(uid)
+    // addPeer(uid, )
   }
 
   onLeaveChat (res: SocketResponse) {

@@ -1,30 +1,29 @@
-
-import env from '../../config'
-import { getRoomId, getUID } from '../../service/utils'
 import GameSocket from '../socket/GameSocket'
 const { RTCPeerConnection, RTCSessionDescription } = window
 const Peer = require('simple-peer')
-
+let ts: number = 0
+export const setTs = (v: number) => ts = v
+export const getTs = () => ts
 const configuration = {
   // Using From https://www.metered.ca/tools/openrelay/
-  "iceServers": [
+  'iceServers': [
   {
-    urls: "stun:openrelay.metered.ca:80"
+    urls: 'stun:openrelay.metered.ca:80',
   },
   {
-    urls: "turn:openrelay.metered.ca:80",
-    username: "openrelayproject",
-    credential: "openrelayproject"
+    urls: 'turn:openrelay.metered.ca:80',
+    username: 'openrelayproject',
+    credential: 'openrelayproject',
   },
   {
-    urls: "turn:openrelay.metered.ca:443",
-    username: "openrelayproject",
-    credential: "openrelayproject"
+    urls: 'turn:openrelay.metered.ca:443',
+    username: 'openrelayproject',
+    credential: 'openrelayproject',
   },
   {
-    urls: "turn:openrelay.metered.ca:443?transport=tcp",
-    username: "openrelayproject",
-    credential: "openrelayproject"
+    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+    username: 'openrelayproject',
+    credential: 'openrelayproject',
   }
 ]
 }
@@ -33,7 +32,7 @@ let localStream: MediaStream
 export const peers: any = {}
 let myVideo: HTMLVideoElement
 
-let peer: any = new Peer({ initiator: true})
+let peer: any = new Peer({ initiator: true })
 
 // peer.on('signal', (data: any) => {
 //   console.log('on signal', data)
@@ -63,19 +62,25 @@ let peer: any = new Peer({ initiator: true})
 //   addVideoStream(video, stream)
 // })
 
-const addMedia = (stream: MediaStream) => {
-  peer.addStream(stream) // <- add streams to peer dynamically
-  addVideoStream(myVideo, stream)
-}
+// const addMedia = (stream: MediaStream) => {
+//   peer.addStream(stream) // <- add streams to peer dynamically
+//   addVideoStream(myVideo, stream)
+// }
 
 export const closeChatting = () => {
+  console.log('close', peers)
   myVideo && myVideo.remove()
   localStream && localStream.getTracks().forEach((track) => {
     track.stop()
   })
-  
+
+  for (let uid in peers) {
+    removePeer(uid)
+  }
+  // peer.destroy()
   const gameSocket = GameSocket.getInstance()
   gameSocket.leaveChat()
+  console.log(peer)
 
   // peer = (null) as any
 }
@@ -88,6 +93,7 @@ export const startChatting = (peerUrl: string = 'chatter', data: { userId: numbe
   
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
   .then((myStream: MediaStream) => {
+
     // add myself
     localStream = myStream
     myVideo.srcObject = myStream
@@ -106,50 +112,52 @@ export const startChatting = (peerUrl: string = 'chatter', data: { userId: numbe
   })
 }
 
-const addVideoStream = (video: HTMLVideoElement, stream: MediaStream) => {
-  const videoContainer = document.getElementById('video-container')
-  video.srcObject = stream
-  video.addEventListener('loadedmetadata', () => {
-    video.play()
-  })
-  console.log(videoContainer)
-  videoContainer && videoContainer.append(video)
-}
+// const addVideoStream = (video: HTMLVideoElement, stream: MediaStream) => {
+//   const videoContainer = document.getElementById('video-container')
+//   video.srcObject = stream
+//   video.addEventListener('loadedmetadata', () => {
+//     video.play()
+//   })
+//   console.log(videoContainer)
+//   videoContainer && videoContainer.append(video)
+// }
 // }
 
 // export default GamePeer
 
-export const connectToNewUser = (userId: number, myStream: MediaStream = localStream) => {
-  //
-  const newPeer = new Peer({ initiator: true, stream: myStream, trickle: false })
+// export const connectToNewUser = (userId: number, myStream: MediaStream = localStream) => {
+//   //
+//   const newPeer = new Peer({ initiator: true, stream: myStream, trickle: false })
 
-  newPeer.on('signal', (data: any) => {
-    console.log('new peer on signal')
-    peer.signal(data)
-  })
-  console.log(newPeer)
+//   newPeer.on('signal', (data: any) => {
+//     console.log('new peer on signal')
+//     peer && peer.signal(data)
+//   })
+//   console.log(newPeer)
 
-  newPeer.on('stream', (stream: MediaStream) => {
-    // got remote video stream, now let's show it in a video tag
-    console.log('on stream!!')
-    const video = document.createElement('video')
-    addVideoStream(video, stream)
-  })
+//   newPeer.on('stream', (stream: MediaStream) => {
+//     // got remote video stream, now let's show it in a video tag
+//     console.log('on stream!!')
+//     const video = document.createElement('video')
+//     addVideoStream(video, stream)
+//   })
 
-  peers[userId] = newPeer
-}
+//   peers[userId] = newPeer
+// }
 
 /**
  * Remove a peer with given socket_id. 
  * Removes the video element and deletes the connection
- * @param {number} uid
+ * @param {string} sid
  */
-export const removePeer = (uid: number) => {
-  const peer = peers[uid]
+export const removePeer = (sid: string) => {
+  const peer = peers[sid]
+  console.log('remove peer', peer)
   const video = peer?.video || null
   video && video.remove()
   peer && peer.peer?.destroy()
-  delete peers[uid]
+  delete peers[sid]
+  console.log('delete ', sid, peers)
 }
 
 /**
@@ -160,9 +168,9 @@ export const removePeer = (uid: number) => {
  *                  Set to true if the peer initiates the connection process.
  *                  Set to false if the peer receives the connection. 
  */
-export const addPeer = (uid: number, am_initiator: boolean) => {
-  console.log('add ', uid)
-  peers[uid] = {
+export const addPeer = (cid: string, am_initiator: boolean) => {
+  console.log('add ', cid)
+  peers[cid] = {
     peer: new Peer({
       initiator: am_initiator,
       stream: localStream,
@@ -170,14 +178,16 @@ export const addPeer = (uid: number, am_initiator: boolean) => {
     }),
     video: document.createElement('video'),
   }
+  console.log('created ', peers[cid].peer)
 
-  peers[uid].peer.on('signal', (data: any) => {
+  peers[cid].peer.on('signal', (data: any) => {
     const gameSocket = GameSocket.getInstance()
-    gameSocket.signal(uid, data)
+    console.log('i am signaled by', cid)
+    gameSocket.signal(cid, data, ts)
   })
 
-  peers[uid].peer.on('stream', (stream: MediaStream) => {
-    const video = peers[uid].video
+  peers[cid].peer.on('stream', (stream: MediaStream) => {
+    const video = peers[cid].video
     video.srcObject = stream
     video.addEventListener('loadedmetadata', () => {
       video.play()
