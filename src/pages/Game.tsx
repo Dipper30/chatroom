@@ -30,6 +30,8 @@ const Map: React.FC<MapProps> = (props: MapProps) => {
 
   const navigate = useNavigate()
   const map = useSelector((state: any) => state.map)
+  const [micOn, setMicOn] = useState<Boolean>(true)
+  const [camOn, setCamOn] = useState<Boolean>(true)
 
   const leaveRoom = () => {
     const gameSocket = GameSocket.getInstance()
@@ -45,11 +47,11 @@ const Map: React.FC<MapProps> = (props: MapProps) => {
   }
 
   const toggleVoice = () => {
-    toggleMyVoice()
+    setMicOn(toggleMyVoice())
   }
 
   const toggleVideo = () => {
-    toggleMyVideo()
+    setCamOn(toggleMyVideo())
   }
 
   useEffect(() => {
@@ -97,8 +99,8 @@ const Map: React.FC<MapProps> = (props: MapProps) => {
       <div onClick={toHome} className='back'> Back </div>
       <div className='title'>test: { props.worldName }</div>
       <canvas tabIndex={0} id='game'></canvas>
-      <button onClick={toggleVoice}>Toggle Voice</button>
-      <button onClick={toggleVideo}>Toggle Video</button>
+      <button onClick={toggleVoice}>Toggle Voice</button> { micOn ? 'On' : 'Muted' }
+      <button onClick={toggleVideo}>Toggle Video</button> { camOn ? 'On' : 'Closed' }
       <div className='video-container' id='video-container'>
        
       </div>

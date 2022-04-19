@@ -28,9 +28,9 @@
   },
   "production": {
     "username": "admin",
-    "password": "db123456",
+    "password": "***",
     "database": "canvas",
-    "host": "db.chqoyv7zkx75.us-east-2.rds.amazonaws.com",
+    "host": "***",
     "dialect": "mysql"
   }
 }

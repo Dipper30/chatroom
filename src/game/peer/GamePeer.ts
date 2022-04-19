@@ -34,10 +34,12 @@ let myVideo: HTMLVideoElement
 
 export const toggleMyVoice = () => {
   localStream && localStream.getAudioTracks().forEach(track => track.enabled = !track.enabled)
+  return localStream?.getAudioTracks()[0].enabled || false
 }
 
 export const toggleMyVideo = () => {
   localStream && localStream.getVideoTracks().forEach(track => track.enabled = !track.enabled)
+  return localStream?.getVideoTracks()[0].enabled || false
 }
 
 let peer: any = new Peer({ initiator: true })
@@ -98,7 +100,10 @@ export const startChatting = (peerUrl: string = 'chatter', data: { userId: numbe
   const { userId } = data
   myVideo = document.createElement('video')
   myVideo.muted = true
-  
+  if (!navigator.mediaDevices) {
+    alert('It seems video is not supported...')
+    return
+  }
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
   .then((myStream: MediaStream) => {
 
@@ -117,6 +122,8 @@ export const startChatting = (peerUrl: string = 'chatter', data: { userId: numbe
     
   }).catch((err) => {
     console.error('Failed to get local stream', err)
+    alert('It seems video is not supported...')
+    return
   })
 }
 
